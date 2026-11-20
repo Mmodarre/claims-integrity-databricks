@@ -1,0 +1,55 @@
+bundle:
+  name: claims-integrity-insights
+
+variables:
+  sql_warehouse_id:
+    description: SQL warehouse used for metric-view and gold-table queries
+  scans_volume:
+    description: UC volume (catalog.schema.volume) holding rendered clinical document scans
+  genie_space_id:
+    description: Genie space backing the Ask-the-data panel
+
+resources:
+  apps:
+    app:
+      name: "claims-integrity-insights"
+      description: "Claims integrity insights: AI-native executive and team-lead view"
+      source_code_path: ./
+
+      # Start the app automatically on deploy.
+      lifecycle:
+        started: true
+
+      # AppKit's Genie routes always run on behalf of the signed-in user, so the
+      # user token needs the genie scope (only used once a space id is set).
+      user_api_scopes:
+        - genie
+
+      resources:
+        - name: sql-warehouse
+          sql_warehouse:
+            id: ${var.sql_warehouse_id}
+            permission: CAN_USE
+        # Read-only: the app only serves scans from landing/rendered_docs.
+        - name: files
+          uc_securable:
+            securable_full_name: ${var.scans_volume}
+            securable_type: VOLUME
+            permission: READ_VOLUME
+        # Genie panel ("Ask the data"): space "Claims Integrity — Ask the Data"
+        # (definition in claims_integrity/genie/). Queries run as the signed-in user.
+        - name: genie-space
+          genie_space:
+            name: claims-integrity-genie
+            space_id: ${var.genie_space_id}
+            permission: CAN_RUN
+
+targets:
+  default:
+    default: true
+    # workspace host comes from the CLI profile (databricks ... -p <profile>)
+
+    variables:
+      sql_warehouse_id: 148ccb90800933a1
+      scans_volume: mehdidatalake_catalog.integrity_raw.landing
+      genie_space_id: 01f1e4ab2b7a1f3492e03099f81db7d7

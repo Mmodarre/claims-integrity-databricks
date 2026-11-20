@@ -1,0 +1,14 @@
+# Claims Integrity Auditor post-deploy: app SP grants on synced tables, Lakehouse Sync (CDF) config auditor -> integrity_app (scripts/post_deploy.py)
+# captured 2026-11-20 06:41 UTC
+
+App claims-integrity-auditor (RUNNING), service principal 30b0d45a-9211-4201-a7ba-7ef7503310df
+Granted SELECT on integrity_synced.* to 30b0d45a-9211-4201-a7ba-7ef7503310df; auditor owned by 30b0d45a-9211-4201-a7ba-7ef7503310df, REPLICA IDENTITY FULL tables: ['auditor_decision', 'auditor_feedback', 'document_request']
+Created Lakehouse Sync config projects/claims-integrity/branches/production/databases/databricks-postgres/cdf-configs/auditor_to_integrity_app
+  auditor_decision     CDF_STATE_STREAMING    -> mehdidatalake_catalog.integrity_app.lb_auditor_decision_history
+  document_request     CDF_STATE_STREAMING    -> mehdidatalake_catalog.integrity_app.lb_document_request_history
+  auditor_feedback     CDF_STATE_STREAMING    -> mehdidatalake_catalog.integrity_app.lb_auditor_feedback_history
+{
+ "app_url": "https://claims-integrity-auditor-<workspace-id>.11.azure.databricksapps.com",
+ "service_principal": "30b0d45a-9211-4201-a7ba-7ef7503310df",
+ "cdf_config": "projects/claims-integrity/branches/production/databases/databricks-postgres/cdf-configs/auditor_to_integrity_app"
+}

@@ -1,0 +1,60 @@
+[project]
+name = "auditor-app"
+dynamic = ["version"]
+description = "Claim Integrity Auditor on Lakebase (claims_integrity demo)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.119.0",
+    "pydantic-settings>=2.11.0",
+    "uvicorn>=0.37.0",
+    "databricks-sdk>=0.135.0",
+    "psycopg[binary,pool]>=3.2.11",
+    "pillow>=11.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+# Standalone uv project: the repo root workspace (members = packages/*) must not adopt it.
+[tool.uv.workspace]
+members = []
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.12",
+]
+
+[tool.apx.metadata]
+app-name = "auditor-app"
+app-slug = "auditor_app"
+app-entrypoint = "auditor_app.backend.app:app"
+api-prefix = "/api"
+metadata-path = "src/auditor_app/_metadata.py"
+
+[tool.apx.ui]
+root = "src/auditor_app/ui"
+
+[tool.apx.ui.registries]
+"@animate-ui" = "https://animate-ui.com/r/{name}.json"
+"@ai-elements" = "https://registry.ai-sdk.dev/{name}.json"
+"@svgl" = "https://svgl.app/r/{name}.json"
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning>=0.7.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+fallback-version = "0.0.0"
+
+[tool.hatch.build.hooks.version]
+path = "src/auditor_app/_version.py"
+template = '''
+version = "{version}"
+'''
+
+[tool.hatch.build]
+artifacts = ["src/auditor_app/__dist__", "src/auditor_app/_metadata.py"]
+exclude = ["src/auditor_app/ui"]

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://databricks.github.io/appkit/schemas/metric-source.schema.json",
+  "metricViews": {
+    "claims_overview": {
+      "source": "mehdidatalake_catalog.integrity_gold.mv_claims_overview",
+      "executor": "app_service_principal"
+    },
+    "integrity_funnel": {
+      "source": "mehdidatalake_catalog.integrity_gold.mv_integrity_funnel",
+      "executor": "app_service_principal"
+    },
+    "recovery": {
+      "source": "mehdidatalake_catalog.integrity_gold.mv_recovery",
+      "executor": "app_service_principal"
+    },
+    "document_ai": {
+      "source": "mehdidatalake_catalog.integrity_gold.mv_document_ai",
+      "executor": "app_service_principal"
+    }
+  }
+}

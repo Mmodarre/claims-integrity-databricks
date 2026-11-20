@@ -1,0 +1,371 @@
+# Claims Integrity Auditor live checks: app status, API, scans, Genie, one auditor decision -> Lakebase -> Lakehouse Sync history in UC (scripts/live_checks.py)
+# captured 2026-11-20 06:42 UTC
+
+
+### App
+{
+ "name": "claims-integrity-auditor",
+ "url": "https://claims-integrity-auditor-<workspace-id>.11.azure.databricksapps.com",
+ "app_status": {
+  "message": "App has status: App is running",
+  "state": "RUNNING"
+ },
+ "compute_status": {
+  "message": "App compute is running.",
+  "state": "ACTIVE"
+ },
+ "service_principal_client_id": "30b0d45a-9211-4201-a7ba-7ef7503310df",
+ "active_deployment": {
+  "message": "App started successfully",
+  "state": "SUCCEEDED"
+ }
+}
+
+### GET /api/health
+[
+ {
+  "status": 200,
+  "content_type": "application/json",
+  "bytes": 120,
+  "seconds": 2.26
+ },
+ {
+  "status": "ok",
+  "database": "databricks_postgres",
+  "app_schema": "auditor",
+  "synced_schema": "integrity_synced",
+  "detail": null
+ }
+]
+
+### GET /api/queue?page_size=3
+{
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 2136,
+ "seconds": 1.6,
+ "total": 876,
+ "top": [
+  {
+   "claim_number": "CLM-W0-2021-00005362",
+   "hospital_name": "WA Hospital 074",
+   "ml_fraud_score": 0.9891,
+   "recommendation": "escalate",
+   "review_outcome": "discrepancy_confirmed",
+   "review_status": "open"
+  },
+  {
+   "claim_number": "CLM-W6-2021-00004500",
+   "hospital_name": "VIC Hospital 209",
+   "ml_fraud_score": 0.9891,
+   "recommendation": "investigate",
+   "review_outcome": null,
+   "review_status": "open"
+  },
+  {
+   "claim_number": "CLM-W3-2021-00003524",
+   "hospital_name": "SA Hospital 067",
+   "ml_fraud_score": 0.9882,
+   "recommendation": "dismiss",
+   "review_outcome": "discrepancy_confirmed",
+   "review_status": "open"
+  }
+ ]
+}
+
+### GET /api/queue/facets
+[
+ {
+  "status": 200,
+  "content_type": "application/json",
+  "bytes": 336,
+  "seconds": 1.07
+ },
+ {
+  "regions": [
+   "ACT",
+   "NSW",
+   "NT",
+   "QLD",
+   "SA",
+   "TAS",
+   "VIC",
+   "WA"
+  ],
+  "claim_statuses": [
+   "Paid",
+   "Rejected"
+  ],
+  "recommendations": [
+   "dismiss",
+   "escalate",
+   "investigate"
+  ],
+  "review_outcomes": [
+   "discrepancy_confirmed",
+   "documents_support_claim",
+   "needs_more_information",
+   "no_documents"
+  ],
+  "statuses": [
+   "open",
+   "in_review",
+   "awaiting_information",
+   "escalated",
+   "closed"
+  ]
+ }
+]
+
+### GET /api/claims/68ce3ffe-cf9d-4485-8ab3-f50273f03bf0
+{
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 5090,
+ "seconds": 1.18,
+ "claim_number": "CLM-W0-2021-00000082",
+ "hospital": "NT Hospital 161",
+ "lines": 4,
+ "diagnoses": 2,
+ "procedures": 1
+}
+
+### GET /api/claims/68ce3ffe-cf9d-4485-8ab3-f50273f03bf0/triage
+{
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 1774,
+ "seconds": 1.07,
+ "recommendation": "investigate",
+ "discrepancy_type": "procedure_phantom",
+ "confidence": 0.66,
+ "est_impact_aud": 198.82,
+ "doc_to_request": "operative_note",
+ "triage_model": "system.ai.gpt-5-5",
+ "key_signals": 4,
+ "reasoning": "The stay and accommodation structure is internally consistent: this is a same-day day-surgery admission with 0 billed nights, and the typical stay for arthroscopic partial meniscectomy is 0-0 nights. The main procedure line 49580 aligns with the coded principal procedure 49580-00, so there is no obv"
+}
+
+### GET /api/claims/68ce3ffe-cf9d-4485-8ab3-f50273f03bf0/review
+{
+ "status": "received",
+ "content_type": "application/json",
+ "bytes": 5514,
+ "seconds": 1.29,
+ "review_outcome": "discrepancy_confirmed",
+ "identified_recovery_aud": 198.82,
+ "documents": [
+  {
+   "document_type": "operative_note",
+   "image_url": "/api/documents/47e909cb-9c3b-4e28-94e4-524792501fac/image",
+   "image_width": 3584,
+   "image_height": 4800
+  },
+  {
+   "document_type": "discharge_summary",
+   "image_url": "/api/documents/1fc87997-1ce6-4799-a43e-21bf35936ff1/image",
+   "image_width": 3584,
+   "image_height": 4800
+  }
+ ],
+ "findings": [
+  {
+   "finding_id": "ae319ef499da251364c6889c3be6931c5fba7b9f74733f817d908f3414204fef",
+   "billed_item_code": "34992",
+   "verdict": "contradiction",
+   "outcome": "discrepancy",
+   "recovery_aud": 198.82,
+   "evidence_bbox": [
+    241,
+    1796,
+    3355,
+    3602
+   ],
+   "evidence_page": 0,
+   "evidence_quote": "Technique: Standard anterolateral and anteromedial portals established. Diagnostic arthroscopy performed. Debridement and partial meniscectomy carried out with powered shaver."
+  },
+  {
+   "finding_id": "9bc9956f1c1bc3ff5100bfc5d142ebec682e54f245201e31f8862d49f2acd197",
+   "billed_item_code": "49580",
+   "verdict": "supported",
+   "outcome": "supported",
+   "recovery_aud": 0.0,
+   "evidence_bbox": [
+    241,
+    1796,
+    3355,
+    3602
+   ],
+   "evidence_page": 0,
+   "evidence_quote": "Operation performed: Arthroscopic partial medial meniscectomy, right knee"
+  }
+ ]
+}
+
+### GET /api/documents/47e909cb-9c3b-4e28-94e4-524792501fac/image?width=1600
+{
+ "status": 200,
+ "content_type": "image/jpeg",
+ "bytes": 400115,
+ "seconds": 4.54
+}
+
+### GET /api/documents/1fc87997-1ce6-4799-a43e-21bf35936ff1/image?width=1600
+{
+ "status": 200,
+ "content_type": "image/jpeg",
+ "bytes": 377307,
+ "seconds": 2.96
+}
+
+### GET /api/documents/47e909cb-9c3b-4e28-94e4-524792501fac/elements
+{
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 3751,
+ "seconds": 1.02,
+ "elements": 15,
+ "first": {
+  "element_key": "47e909cb-9c3b-4e28-94e4-524792501fac:0",
+  "element_id": 0,
+  "element_type": "text",
+  "content": "[FACILITY REDACTED] | Department of Orthopaedic Surgery\n[address redacted] | Ph [phone redacted]",
+  "confidence": 0.9916,
+  "page_id": 0,
+  "bbox": [
+   251,
+   90,
+   2123,
+   261
+  ]
+ }
+}
+
+### GET /api/genie/status
+[
+ {
+  "status": 200,
+  "content_type": "application/json",
+  "bytes": 65,
+  "seconds": 1.06
+ },
+ {
+  "configured": true,
+  "space_id": "01f1e4ab2b7a1f3492e03099f81db7d7"
+ }
+]
+
+### POST /api/genie/ask 'Which 5 hospitals have the highest identified recovery?'
+{
+ "status": "COMPLETED",
+ "content_type": "application/json",
+ "bytes": 6205,
+ "seconds": 21.13,
+ "error": null,
+ "detail": null,
+ "answer_text": "For the hospitals returned here, the **5 highest AI-identified recoveries** are shown below; these amounts are **pending auditor confirmation**.\n\n- **NSW Hospital 225** (NSW): **AUD 12.1k** identified recovery; **1** claim with discrepancy\n- **NSW Hospital 235** (NSW): **AUD 11.2k** identified recovery; **3** claims with discrepancy\n- **SA Hospital 067** (SA): **AUD 10.4k** identified recovery; **1** claim with discrepancy\n- **VIC Hospital 270** (VIC): **AUD 6.4k** identified recovery; **1** claim with discrepancy\n- **NSW Hospital 230** (NSW): **AUD 5.2k** identified recovery; **2** claims with discrepancy\n\nAcross these 5 hospitals, identified recovery ranges from **AUD 5.2k to AUD 12.1k**, and **NSW** accounts for **3 of the 5** hospitals listed.",
+ "sql": "SELECT\n  `hospital_name`,\n  `region`,\n  `identified_recovery_aud`,\n  `claims_with_discrepancy`,\n  `risk_narrative`\nFROM `mehdidatalake_catalog`.`integrity_gold`.`hospital_risk_profile`\nWHERE `identified_recovery_aud` IS NOT NULL\n  AND `hospital_name` IS NOT NULL\nORDER BY `identified_recovery_aud` DESC, `hospital_name` ASC\nLIMIT 5",
+ "result_columns": [
+  "hospital_name",
+  "region",
+  "identified_recovery_aud",
+  "claims_with_discrepancy",
+  "risk_narrative"
+ ],
+ "result_rows": [
+  [
+   "NSW Hospital 225",
+   "NSW",
+   "12091.04",
+   "1",
+   "NSW Hospital 225 shows limited grounds for escalation on volume alone, but one finding merits targeted follow-up: 3 of 41 claims (7.3%) were ML-flagged, with a peer z-score of -0.5 indicating a rate slightly below the peer average, and AI triage produced 0 escalations. However, 1 claim has document-confirmed discrepancies comprising 3 findings, all of the device_phantom type (devices apparently billed without supporting documentation), plus 1 information gap, with identified recovery of AUD 12,091.04 against AUD 191,851.00 in benefit paid (about 6.3%). These findings are not yet auditor-confirmed, so the recommended next step is a focused review of device billing on that single claim, including a check of other claims with device items from this hospital, before deciding whether broader integrity action is warranted."
+  ],
+  [
+   "NSW Hospital 235",
+   "NSW",
+   "11227.36",
+   "3",
+   "NSW Hospital 235 warrants targeted, moderate integrity attention: 3 of its 42 claims have document-confirmed discrepancies (7 findings, including two DRG upcoding and two phantom procedure findings), and 8 claims (19.0%, peer z-score 1.42) were ML-flagged, which is elevated but not an extreme outlier against peers. Identified recovery of AUD 11,227.36 is about 4.4% of the AUD 252,982.11 benefit paid, only 1 claim was escalated by AI triage, and one information gap remains, so these findings are not yet auditor-confirmed and do not yet indicate systemic over-servicing. The recommended next step is to refer the 3 claims with confirmed discrepancies for auditor review, prioritising the DRG upcoding and phantom procedure findings, and to close the information gap before deciding on any wider claim sample."
+  ],
+  [
+   "SA Hospital 067",
+   "SA",
+   "10406.52",
+   "1",
+   "SA Hospital 067 warrants targeted, low-priority integrity attention rather than a broad review: only 1 of its 21 claims (4.8%) was ML-flagged, with a peer z-score of -0.92 (below the peer average), and AI triage raised no escalations. However, that single claim has document-confirmed discrepancies, with 4 findings all of the device_phantom type (devices apparently billed but not supported by documentation), tied to identified recovery of AUD 10,406.52, or about 10.1% of the AUD 103,155.99 benefit paid on the hospital's claims; no information gaps were recorded, and these findings are not yet auditor-confirmed. The recommended next step is to have an auditor verify the device_phantom findings on that claim and pursue recovery if they are confirmed, then check whether prosthesis or device billing on the hospital's other claims shows a similar pattern before deciding on wider action."
+  ],
+  [
+   "VIC Hospital 270",
+   "VIC",
+   "6432.92",
+   "1",
+   "VIC Hospital 270 warrants low-level, targeted attention rather than a hospital-wide integrity review: its ML-flag rate of 12.5% (3 of 24 claims) is close to peer norms (z-score 0.34), and AI triage raised no escalations. However, one claim has document-confirmed discrepancies spanning three findings (DRG upcoding, a phantom procedure and a same-day/overnight inconsistency), with identified recovery of AUD 6,432.92, or about 6.9% of the AUD 92,617.17 paid, and no information gaps were recorded. As these findings are not yet auditor-confirmed and the sample is small, the recommended next step is to send that single claim to a recovery auditor for validation and to check whether the ML-flagged claims show similar patterns, without escalating the hospital as a whole."
+  ],
+  [
+   "NSW Hospital 230",
+   "NSW",
+   "5175.49",
+   "2",
+   "NSW Hospital 230 does not appear to warrant elevated integrity attention: 2 of 42 claims (4.8%) were ML-flagged, which sits below the peer average (z-score -0.92), and AI triage raised no escalations. Document review did identify 2 claims with discrepancies (one age_eligibility, one drg_upcoding) worth AUD 5,175.49, about 2.6% of the AUD 197,669.89 benefit paid, with no information gaps, though these findings are not yet auditor-confirmed and two differing types across so few claims do not indicate a pattern. The recommended next step is to send the two documented discrepancies through standard auditor confirmation and recovery, and to keep the hospital under routine monitoring rather than opening a targeted review."
+  ]
+ ]
+}
+
+### PUT /api/claims/68ce3ffe-cf9d-4485-8ab3-f50273f03bf0/findings/ae319ef499da251364c6889c3be6931c5fba7b9f74733f817d908f3414204fef/decision {"decision": "confirmed", "confirmed_recovery_aud": 198.82, "note": "Operative note: diagnostic only; add-on 34992 not performed"}
+{
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 398,
+ "seconds": 1.06,
+ "decision_id": "e5ca9e1e-3945-4c05-a032-96521b03a3e1",
+ "claim_id": "68ce3ffe-cf9d-4485-8ab3-f50273f03bf0",
+ "finding_id": "ae319ef499da251364c6889c3be6931c5fba7b9f74733f817d908f3414204fef",
+ "decision": "confirmed",
+ "confirmed_recovery_aud": 198.82,
+ "decided_by": "<operator>",
+ "decided_at": "2026-11-20T06:42:02.558915Z",
+ "note": "Operative note: diagnostic only; add-on 34992 not performed"
+}
+
+### GET /api/claims/68ce3ffe-cf9d-4485-8ab3-f50273f03bf0/workflow
+{
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 640,
+ "seconds": 1.1,
+ "review_status": "closed",
+ "actionable_findings": 1,
+ "actionable_decided": 1,
+ "confirmed_recovery_aud": 198.82
+}
+
+### Postgres auditor.auditor_decision
+[
+ {
+  "decision_id": "e5ca9e1e-3945-4c05-a032-96521b03a3e1",
+  "claim_id": "68ce3ffe-cf9d-4485-8ab3-f50273f03bf0",
+  "finding_id": "ae319ef499da251364c6889c3be6931c5fba7b9f74733f817d908f3414204fef",
+  "decision": "confirmed",
+  "confirmed_recovery_aud": "198.82",
+  "decided_by": "<operator>",
+  "decided_at": "2026-11-20 06:42:02.558915+00:00",
+  "note": "Operative note: diagnostic only; add-on 34992 not performed"
+ }
+]
+
+### UC mehdidatalake_catalog.integrity_app.lb_auditor_decision_history (Lakehouse Sync)
+[
+ {
+  "_pg_change_type": "insert",
+  "_pg_lsn": "68806680",
+  "_timestamp": "2026-11-20T06:42:03.857",
+  "claim_id": "68ce3ffe-cf9d-4485-8ab3-f50273f03bf0",
+  "confirmed_recovery_aud": "198.82",
+  "decided_at": "2026-11-20T01:42:02.558-05:00",
+  "decided_by": "<operator>",
+  "decision": "confirmed",
+  "decision_id": "e5ca9e1e-3945-4c05-a032-96521b03a3e1",
+  "finding_id": "ae319ef499da251364c6889c3be6931c5fba7b9f74733f817d908f3414204fef",
+  "note": "Operative note: diagnostic only; add-on 34992 not performed"
+ }
+]

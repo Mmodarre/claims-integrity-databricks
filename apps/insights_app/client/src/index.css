@@ -1,0 +1,44 @@
+@import "@databricks/appkit-ui/styles.css";
+
+/*
+ * App-specific semantic tokens layered on AppKit's theme.
+ * --ai marks anything produced by a model (badges, AI panels, highlights) so
+ * "this came from AI" reads the same on every screen.
+ * --evidence is the bounding-box highlight on scanned documents.
+ */
+:root {
+  --ai: oklch(0.52 0.2 293);
+  --ai-foreground: oklch(0.99 0 0);
+  --ai-muted: oklch(0.96 0.03 293);
+  --evidence: oklch(0.63 0.22 25);
+  --evidence-foreground: oklch(0.99 0 0);
+  --evidence-muted: oklch(0.63 0.22 25 / 18%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ai: oklch(0.72 0.16 293);
+    --ai-foreground: oklch(0.18 0.02 293);
+    --ai-muted: oklch(0.3 0.06 293);
+    --evidence: oklch(0.72 0.19 25);
+    --evidence-foreground: oklch(0.15 0.02 25);
+    --evidence-muted: oklch(0.72 0.19 25 / 22%);
+  }
+}
+
+@theme inline {
+  --color-ai: var(--ai);
+  --color-ai-foreground: var(--ai-foreground);
+  --color-ai-muted: var(--ai-muted);
+  --color-evidence: var(--evidence);
+  --color-evidence-foreground: var(--evidence-foreground);
+  --color-evidence-muted: var(--evidence-muted);
+}
+
+body {
+  font-feature-settings: "tnum" 1;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,108 @@
+version: 1.1
+source: ${catalog}.${gold_schema}.integrity_finding_fact
+comment: "Recovery dollars by discrepancy type, hospital, surgeon and detection method; identified by AI vs confirmed by auditors."
+dimensions:
+  - name: service_month
+    expr: service_month
+    display_name: Service month
+    synonyms: ["month"]
+  - name: discrepancy_type
+    expr: discrepancy_type
+    display_name: Discrepancy type
+    synonyms: ["fraud type", "issue type", "finding type"]
+  - name: discrepancy_title
+    expr: discrepancy_title
+    display_name: Discrepancy
+  - name: audit_type
+    expr: audit_type
+    display_name: Audit type
+    comment: "prepayment / postpayment"
+  - name: detection_method
+    expr: detection_method
+    display_name: Detection method
+    comment: "rule = SQL check on AI-extracted facts; llm = LLM document review"
+  - name: outcome
+    expr: outcome
+    display_name: Finding outcome
+  - name: recovery_basis
+    expr: recovery_basis
+    display_name: Recovery basis
+  - name: hospital_name
+    expr: hospital_name
+    display_name: Hospital
+  - name: region
+    expr: region
+    display_name: Region
+    synonyms: ["state"]
+  - name: surgeon_name
+    expr: surgeon_name
+    display_name: Surgeon
+    synonyms: ["provider", "doctor"]
+  - name: source_document_type
+    expr: source_document_type
+    display_name: Evidence document
+  - name: auditor_status
+    expr: auditor_status
+    display_name: Auditor status
+measures:
+  - name: findings
+    expr: COUNT(1)
+    display_name: Checks evaluated
+  - name: discrepancy_findings
+    expr: COUNT(1) FILTER (WHERE outcome = 'discrepancy')
+    display_name: Discrepancies
+    synonyms: ["findings", "issues found"]
+  - name: information_gaps
+    expr: COUNT(1) FILTER (WHERE outcome = 'needs_information')
+    display_name: Information gaps
+  - name: claims_with_discrepancy
+    expr: COUNT(DISTINCT claim_id) FILTER (WHERE outcome = 'discrepancy')
+    display_name: Claims with discrepancies
+  - name: identified_recovery
+    expr: SUM(identified_recovery_aud) FILTER (WHERE outcome = 'discrepancy')
+    display_name: Identified recovery
+    synonyms: ["recovery", "recoverable amount", "savings"]
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: confirmed_recovery
+    expr: SUM(confirmed_recovery_aud)
+    display_name: Confirmed recovery
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: pending_recovery
+    expr: SUM(identified_recovery_aud) FILTER (WHERE outcome = 'discrepancy' AND auditor_status = 'pending')
+    display_name: Recovery awaiting auditor
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: billed_benefit_on_discrepancies
+    expr: SUM(billed_benefit_aud) FILTER (WHERE outcome = 'discrepancy')
+    display_name: Benefit on disputed lines
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: avg_recovery_per_discrepancy
+    expr: CAST(MEASURE(identified_recovery) AS DOUBLE) / MEASURE(discrepancy_findings)
+    display_name: Avg recovery per discrepancy
+    format:
+      type: currency
+      currency_code: AUD
+      decimal_places: {type: exact, places: 2}
+  - name: recovery_share_of_disputed_benefit
+    expr: CAST(MEASURE(identified_recovery) AS DOUBLE) / MEASURE(billed_benefit_on_discrepancies)
+    display_name: Recovery / disputed benefit
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: avg_confidence
+    expr: AVG(confidence) FILTER (WHERE outcome = 'discrepancy')
+    display_name: Avg AI confidence (discrepancies)
+    format:
+      type: number
+      decimal_places: {type: exact, places: 2}

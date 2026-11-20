@@ -1,0 +1,78 @@
+resources:
+  jobs:
+    claims_integrity_etl:
+      name: claims_integrity_etl
+      description: >
+        Claims-integrity ETL: setup -> ingest pipeline (bronze/silver/claim scoring) ->
+        AI pipeline (ai_parse_document, ai_extract, ai_mask, ai_classify, ai_summarize, ai_query) ->
+        governance (UC tags) + semantic layer (metric views + ai_forecast).
+      max_concurrent_runs: 1
+      tags:
+        project: claims_integrity
+      tasks:
+        - task_key: setup
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/setup/setup.sql
+            parameters:
+              catalog: ${var.catalog}
+              gold_schema: ${var.gold_schema}
+
+        - task_key: ingest
+          depends_on:
+            - task_key: setup
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.claims_integrity_ingest.id}
+
+        - task_key: ai
+          depends_on:
+            - task_key: ingest
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.claims_integrity_ai.id}
+
+        - task_key: governance
+          depends_on:
+            - task_key: ai
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/setup/governance.sql
+            parameters:
+              catalog: ${var.catalog}
+              raw_schema: ${var.raw_schema}
+              bronze_schema: ${var.bronze_schema}
+              silver_schema: ${var.silver_schema}
+              gold_schema: ${var.gold_schema}
+              eval_schema: ${var.eval_schema}
+
+        # Lakebase snapshot synced tables (materialized-view sources) are refreshed after each AI run so
+        # the auditor app serves the latest findings; streaming-table sources sync continuously.
+        - task_key: refresh_lakebase
+          depends_on:
+            - task_key: ai
+          pipeline_task:
+            pipeline_id: ${var.lakebase_snapshot_pipeline_id}
+
+        - task_key: semantic
+          depends_on:
+            - task_key: ai
+          environment_key: semantic_env
+          spark_python_task:
+            python_file: ../src/semantic/deploy_semantic.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --gold-schema
+              - ${var.gold_schema}
+              - --warehouse-id
+              - ${var.warehouse_id}
+              - --root
+              - ${workspace.file_path}/src/semantic
+
+      environments:
+        - environment_key: semantic_env
+          spec:
+            environment_version: "3"
+            dependencies:
+              - databricks-sdk>=0.40.0

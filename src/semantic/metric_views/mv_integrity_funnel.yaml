@@ -1,0 +1,151 @@
+version: 1.1
+source: ${catalog}.${gold_schema}.integrity_case_fact
+comment: "Integrity funnel for team leads: fraud-model flags, AI triage, AI document review, auditor decisions and recovery, per claim."
+dimensions:
+  - name: service_month
+    expr: service_month
+    display_name: Service month
+    synonyms: ["month"]
+  - name: hospital_name
+    expr: hospital_name
+    display_name: Hospital
+    synonyms: ["facility"]
+  - name: region
+    expr: region
+    display_name: Region
+    synonyms: ["state"]
+  - name: surgeon_name
+    expr: surgeon_name
+    display_name: Surgeon
+    synonyms: ["provider", "doctor"]
+  - name: drg_code
+    expr: drg_code
+    display_name: AR-DRG
+  - name: ml_flag_reason
+    expr: ml_flag_reason
+    display_name: Model flag reason
+  - name: triage_recommendation
+    expr: triage_recommendation
+    display_name: AI triage recommendation
+    comment: "dismiss / investigate / escalate"
+  - name: triage_discrepancy_type
+    expr: triage_discrepancy_type
+    display_name: AI triage hypothesis
+  - name: doc_to_request
+    expr: doc_to_request
+    display_name: Document requested
+  - name: review_outcome
+    expr: review_outcome
+    display_name: AI document review outcome
+    comment: "discrepancy_confirmed / needs_more_information / documents_support_claim"
+  - name: primary_discrepancy_type
+    expr: primary_discrepancy_type
+    display_name: Primary discrepancy
+    synonyms: ["fraud type", "issue type"]
+  - name: auditor_status
+    expr: COALESCE(auditor_decision, 'pending')
+    display_name: Auditor decision
+  - name: is_flagged
+    expr: is_flagged
+    display_name: Flagged by model
+  - name: documents_reviewed
+    expr: documents_reviewed
+    display_name: Documents reviewed
+measures:
+  - name: cases
+    expr: COUNT(1)
+    display_name: Integrity cases
+  - name: flagged_claims
+    expr: COUNT(1) FILTER (WHERE is_flagged)
+    display_name: Flagged claims
+    synonyms: ["flags", "queue size"]
+  - name: triaged_claims
+    expr: COUNT(1) FILTER (WHERE is_triaged)
+    display_name: AI-triaged claims
+  - name: audits_recommended
+    expr: COUNT(1) FILTER (WHERE audit_recommended)
+    display_name: Audits recommended by AI
+  - name: escalations
+    expr: COUNT(1) FILTER (WHERE triage_recommendation = 'escalate')
+    display_name: AI escalations
+  - name: dismissed_by_ai
+    expr: COUNT(1) FILTER (WHERE triage_recommendation = 'dismiss')
+    display_name: Dismissed by AI
+    comment: "Flags the AI triage judged to be false positives"
+  - name: ai_dismissal_rate
+    expr: MEASURE(dismissed_by_ai) / MEASURE(triaged_claims)
+    display_name: AI dismissal rate
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: claims_document_reviewed
+    expr: COUNT(1) FILTER (WHERE documents_reviewed)
+    display_name: Claims with documents reviewed
+  - name: discrepancies_confirmed
+    expr: COUNT(1) FILTER (WHERE review_outcome = 'discrepancy_confirmed')
+    display_name: Discrepancies found in documents
+    synonyms: ["confirmed discrepancies", "hits"]
+  - name: needs_more_information
+    expr: COUNT(1) FILTER (WHERE review_outcome = 'needs_more_information')
+    display_name: Need more information
+  - name: documents_support_claim
+    expr: COUNT(1) FILTER (WHERE review_outcome = 'documents_support_claim')
+    display_name: Documents support claim
+  - name: document_hit_rate
+    expr: MEASURE(discrepancies_confirmed) / MEASURE(claims_document_reviewed)
+    display_name: Document hit rate
+    comment: "Share of reviewed claims where documents contradict the bill"
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: identified_recovery
+    expr: SUM(identified_recovery_aud)
+    display_name: Identified recovery
+    synonyms: ["recoverable", "savings identified"]
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: confirmed_recovery
+    expr: SUM(confirmed_recovery_aud)
+    display_name: Confirmed recovery
+    comment: "Recovery confirmed by auditors (populated once auditor decisions sync back from Lakebase)"
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: triage_estimated_impact
+    expr: SUM(triage_est_impact_aud)
+    display_name: AI triage estimated impact
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: benefit_paid_on_flagged
+    expr: SUM(benefit_paid_aud) FILTER (WHERE is_flagged)
+    display_name: Benefit paid on flagged claims
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: recovery_rate_on_flagged
+    expr: CAST(MEASURE(identified_recovery) AS DOUBLE) / MEASURE(benefit_paid_on_flagged)
+    display_name: Identified recovery / benefit on flagged
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: auditor_decisions
+    expr: COUNT(1) FILTER (WHERE auditor_decision IS NOT NULL)
+    display_name: Auditor decisions
+  - name: ai_auditor_agreement_rate
+    expr: COUNT(1) FILTER (WHERE ai_auditor_agree) / NULLIF(COUNT(1) FILTER (WHERE ai_auditor_agree IS NOT NULL), 0)
+    display_name: AI-auditor agreement
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: avg_model_score
+    expr: AVG(ml_fraud_score)
+    display_name: Avg fraud-model score
+    format:
+      type: number
+      decimal_places: {type: exact, places: 3}

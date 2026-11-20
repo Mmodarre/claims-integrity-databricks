@@ -1,0 +1,112 @@
+# Bundle for the Claims Integrity Auditor app only (independent of the root claims_integrity bundle).
+#
+# Every deployment name lives in `variables` below. The app reads them at runtime through
+# app.yml, which scripts/build_app.py renders from these variables on every build, and the
+# Lakebase provisioning scripts read them via `databricks bundle validate -o json`.
+#
+# Deploy order (each script documents itself; all are idempotent):
+#   uv run --no-project --with 'psycopg[binary]' python scripts/provision_lakebase.py --profile <p>
+#   databricks bundle deploy -p <p> && databricks bundle run auditor_app -p <p>
+#   uv run --no-project --with 'psycopg[binary]' python scripts/post_deploy.py --profile <p>
+# Override any name with --var=name=value on every command (e.g. --var=genie_space_id=<id>).
+bundle:
+  name: claims-integrity-auditor
+
+variables:
+  catalog:
+    description: Unity Catalog catalog holding every schema below
+    default: mehdidatalake_catalog
+  gold_schema:
+    description: Source UC schema with the app-ready gold tables (synced into Lakebase)
+    default: integrity_gold
+  synced_schema:
+    description: UC schema for the synced-table entries; also the Postgres schema of the synced tables
+    default: integrity_synced
+  app_schema:
+    description: App-owned Postgres schema (decisions, document requests, feedback), created by the app SP
+    default: auditor
+  app_sync_schema:
+    description: UC schema receiving the Lakehouse Sync history tables (lb_<table>_history) of app_schema
+    default: integrity_app
+  scans_volume:
+    description: UC volume (catalog.schema.volume) holding rendered_docs/<claim_number>/*.jpg
+    default: mehdidatalake_catalog.integrity_raw.landing
+  lakebase_project:
+    description: Lakebase Autoscaling project id
+    default: claims-integrity
+  lakebase_branch:
+    default: production
+  lakebase_endpoint:
+    description: Read-write compute endpoint id on the branch
+    default: primary
+  lakebase_database_id:
+    description: Database resource id on the branch (the default database of a new project)
+    default: databricks-postgres
+  postgres_database:
+    description: Postgres database name (Lakehouse Sync requires databricks_postgres)
+    default: databricks_postgres
+  app_name:
+    description: Databricks App name (workspace-unique, <= 30 chars)
+    default: claims-integrity-auditor
+  genie_space_id:
+    description: Genie space for "Ask the data"; empty = panel shows "not configured"
+    default: ""
+  draft_model:
+    description: Foundation Model API endpoint used to draft document-request emails
+    default: databricks-claude-sonnet-5-5
+  pii_groups:
+    description: Groups allowed to see member PII in the app (mirrors the UC PII column masks)
+    default: admins,claims_integrity_auditors
+  warehouse_id:
+    description: SQL warehouse used only by the provisioning script (sync-source views)
+    default: 148ccb90800933a1
+
+sync:
+  include:
+    - .build
+
+artifacts:
+  default:
+    # Renders app.yml from the variables above, then runs `apx build` (output in .build/).
+    build: >-
+      python3 scripts/build_app.py
+      --lakebase-endpoint=projects/${var.lakebase_project}/branches/${var.lakebase_branch}/endpoints/${var.lakebase_endpoint}
+      --postgres-database=${var.postgres_database}
+      --synced-schema=${var.synced_schema}
+      --app-schema=${var.app_schema}
+      --genie-space-id=${var.genie_space_id}
+      --pii-groups=${var.pii_groups}
+
+resources:
+  apps:
+    auditor_app:
+      name: ${var.app_name}
+      description: "Claims Integrity Auditor on Lakebase: AI triage + document evidence review, auditor decisions written back via Lakehouse Sync."
+      source_code_path: ./.build
+      # On behalf of the signed-in user: Genie. (iam.current-user:read, used for the PII group
+      # lookup, is a default scope and must not be listed.)
+      user_api_scopes:
+        - dashboards.genie
+      resources:
+        # Lakebase Autoscaling database. Creates the app SP's Postgres role (CAN_CONNECT_AND_CREATE).
+        - name: postgres
+          postgres:
+            branch: projects/${var.lakebase_project}/branches/${var.lakebase_branch}
+            database: projects/${var.lakebase_project}/branches/${var.lakebase_branch}/databases/${var.lakebase_database_id}
+            permission: CAN_CONNECT_AND_CREATE
+        # Rendered claim scans, read with the Files API as the app service principal.
+        - name: scans-volume
+          uc_securable:
+            securable_full_name: ${var.scans_volume}
+            securable_type: VOLUME
+            permission: READ_VOLUME
+        # Foundation Model API endpoint used to draft document-request emails (app.yml valueFrom).
+        - name: draft-model
+          serving_endpoint:
+            name: ${var.draft_model}
+            permission: CAN_QUERY
+
+targets:
+  dev:
+    default: true
+    # workspace host comes from the CLI profile (databricks ... -p <profile>)

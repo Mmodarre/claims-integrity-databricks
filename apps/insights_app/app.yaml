@@ -1,0 +1,11 @@
+command: ['npm', 'run', 'start']
+env:
+  - name: DATABRICKS_WAREHOUSE_ID
+    valueFrom: sql-warehouse
+  # Files plugin volume (key "files"); the server policy only allows reading
+  # rendered_docs/<claim_number>/{operative_note,discharge_summary}.jpg.
+  - name: DATABRICKS_VOLUME_FILES
+    value: /Volumes/mehdidatalake_catalog/integrity_raw/landing
+  # Genie panel: space id injected from the genie-space app resource (databricks.yml).
+  - name: DATABRICKS_GENIE_SPACE_ID
+    valueFrom: genie-space

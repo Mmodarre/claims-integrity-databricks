@@ -1,0 +1,472 @@
+{
+  "version": 1,
+  "metricViews": {
+    "claims_overview": {
+      "measures": {
+        "claim_count": {
+          "type": "bigint",
+          "display_name": "Claims",
+          "format": "#,##0"
+        },
+        "total_charged": {
+          "type": "decimal",
+          "display_name": "Total charged",
+          "format": "AUD #,##0.00",
+          "description": "Amount charged by providers (AUD)"
+        },
+        "benefit_paid": {
+          "type": "decimal",
+          "display_name": "Benefit paid",
+          "format": "AUD #,##0.00",
+          "description": "Benefit paid by the fund (AUD)"
+        },
+        "member_gap": {
+          "type": "decimal",
+          "display_name": "Member gap",
+          "format": "AUD #,##0.00",
+          "description": "Out-of-pocket gap paid by members (AUD)"
+        },
+        "avg_benefit_per_claim": {
+          "type": "double",
+          "display_name": "Avg benefit per claim",
+          "format": "AUD #,##0.00"
+        },
+        "benefit_to_charge_ratio": {
+          "type": "double",
+          "display_name": "Benefit / charge",
+          "description": "Share of charges paid by the fund"
+        },
+        "rejected_claims": {
+          "type": "bigint",
+          "display_name": "Rejected claims"
+        },
+        "rejection_rate": {
+          "type": "double",
+          "display_name": "Rejection rate"
+        },
+        "avg_days_to_payment": {
+          "type": "double",
+          "display_name": "Avg days lodgement to payment",
+          "format": "#,##0.0"
+        },
+        "hospital_episodes": {
+          "type": "bigint",
+          "display_name": "Hospital episodes"
+        },
+        "avg_length_of_stay": {
+          "type": "double",
+          "display_name": "Avg length of stay (nights)",
+          "format": "#,##0.00"
+        },
+        "flagged_claims": {
+          "type": "bigint",
+          "display_name": "Fraud-model flags"
+        },
+        "flag_rate": {
+          "type": "double",
+          "display_name": "Flag rate (hospital episodes)"
+        }
+      },
+      "dimensions": {
+        "service_month": {
+          "type": "date",
+          "display_name": "Service month",
+          "description": "Month the service was provided"
+        },
+        "service_week": {
+          "type": "date",
+          "display_name": "Service week"
+        },
+        "service_year": {
+          "type": "int",
+          "display_name": "Service year"
+        },
+        "claim_type": {
+          "type": "string",
+          "display_name": "Claim type",
+          "description": "Hospital, Extras, Ambulance, ..."
+        },
+        "claim_status": {
+          "type": "string",
+          "display_name": "Claim status"
+        },
+        "claim_channel": {
+          "type": "string",
+          "display_name": "Lodgement channel"
+        },
+        "member_state": {
+          "type": "string",
+          "display_name": "Member state"
+        },
+        "member_age_band": {
+          "type": "string",
+          "display_name": "Member age band"
+        },
+        "member_gender": {
+          "type": "string",
+          "display_name": "Member gender"
+        },
+        "product_name": {
+          "type": "string",
+          "display_name": "Product"
+        },
+        "policy_type": {
+          "type": "string",
+          "display_name": "Policy type"
+        },
+        "hospital_name": {
+          "type": "string",
+          "display_name": "Hospital"
+        },
+        "hospital_state": {
+          "type": "string",
+          "display_name": "Hospital state"
+        },
+        "accommodation_type": {
+          "type": "string",
+          "display_name": "Accommodation type"
+        },
+        "is_hospital_episode": {
+          "type": "boolean",
+          "display_name": "Hospital episode"
+        },
+        "provider_category": {
+          "type": "string",
+          "display_name": "Provider category"
+        },
+        "ml_flagged": {
+          "type": "boolean",
+          "display_name": "Flagged by fraud model"
+        }
+      }
+    },
+    "document_ai": {
+      "measures": {
+        "documents_processed": {
+          "type": "bigint",
+          "display_name": "Documents processed"
+        },
+        "documents_parsed": {
+          "type": "bigint",
+          "display_name": "Parsed successfully"
+        },
+        "documents_extracted": {
+          "type": "bigint",
+          "display_name": "Facts extracted"
+        },
+        "layout_elements": {
+          "type": "bigint",
+          "display_name": "Layout elements parsed"
+        },
+        "avg_parse_confidence": {
+          "type": "double",
+          "display_name": "Avg parse confidence"
+        },
+        "avg_extraction_confidence": {
+          "type": "double",
+          "display_name": "Avg extraction confidence"
+        },
+        "type_check_pass_rate": {
+          "type": "double",
+          "display_name": "Type check pass rate"
+        },
+        "total_checks_evaluated": {
+          "type": "bigint",
+          "display_name": "Integrity checks evaluated"
+        },
+        "total_discrepancies_found": {
+          "type": "bigint",
+          "display_name": "Discrepancies found"
+        },
+        "total_llm_discrepancies": {
+          "type": "bigint",
+          "display_name": "Found by LLM review"
+        },
+        "total_rule_discrepancies": {
+          "type": "bigint",
+          "display_name": "Found by rules on extracted facts"
+        },
+        "total_information_gaps": {
+          "type": "bigint",
+          "display_name": "Information gaps flagged"
+        }
+      },
+      "dimensions": {
+        "document_type": {
+          "type": "string",
+          "display_name": "Document type"
+        },
+        "parsed_month": {
+          "type": "timestamp_ltz",
+          "display_name": "Processed month"
+        },
+        "type_check_passed": {
+          "type": "boolean",
+          "display_name": "AI type check passed"
+        },
+        "has_discrepancy": {
+          "type": "boolean",
+          "display_name": "Raised a discrepancy"
+        }
+      }
+    },
+    "integrity_funnel": {
+      "measures": {
+        "cases": {
+          "type": "bigint",
+          "display_name": "Integrity cases"
+        },
+        "flagged_claims": {
+          "type": "bigint",
+          "display_name": "Flagged claims"
+        },
+        "triaged_claims": {
+          "type": "bigint",
+          "display_name": "AI-triaged claims"
+        },
+        "audits_recommended": {
+          "type": "bigint",
+          "display_name": "Audits recommended by AI"
+        },
+        "escalations": {
+          "type": "bigint",
+          "display_name": "AI escalations"
+        },
+        "dismissed_by_ai": {
+          "type": "bigint",
+          "display_name": "Dismissed by AI",
+          "description": "Flags the AI triage judged to be false positives"
+        },
+        "ai_dismissal_rate": {
+          "type": "double",
+          "display_name": "AI dismissal rate"
+        },
+        "claims_document_reviewed": {
+          "type": "bigint",
+          "display_name": "Claims with documents reviewed"
+        },
+        "discrepancies_confirmed": {
+          "type": "bigint",
+          "display_name": "Discrepancies found in documents"
+        },
+        "needs_more_information": {
+          "type": "bigint",
+          "display_name": "Need more information"
+        },
+        "documents_support_claim": {
+          "type": "bigint",
+          "display_name": "Documents support claim"
+        },
+        "document_hit_rate": {
+          "type": "double",
+          "display_name": "Document hit rate",
+          "description": "Share of reviewed claims where documents contradict the bill"
+        },
+        "identified_recovery": {
+          "type": "decimal",
+          "display_name": "Identified recovery",
+          "format": "AUD #,##0.00"
+        },
+        "confirmed_recovery": {
+          "type": "decimal",
+          "display_name": "Confirmed recovery",
+          "format": "AUD #,##0.00",
+          "description": "Recovery confirmed by auditors (populated once auditor decisions sync back from Lakebase)"
+        },
+        "triage_estimated_impact": {
+          "type": "decimal",
+          "display_name": "AI triage estimated impact",
+          "format": "AUD #,##0.00"
+        },
+        "benefit_paid_on_flagged": {
+          "type": "decimal",
+          "display_name": "Benefit paid on flagged claims",
+          "format": "AUD #,##0.00"
+        },
+        "recovery_rate_on_flagged": {
+          "type": "double",
+          "display_name": "Identified recovery / benefit on flagged"
+        },
+        "auditor_decisions": {
+          "type": "bigint",
+          "display_name": "Auditor decisions"
+        },
+        "ai_auditor_agreement_rate": {
+          "type": "double",
+          "display_name": "AI-auditor agreement"
+        },
+        "avg_model_score": {
+          "type": "decimal",
+          "display_name": "Avg fraud-model score",
+          "format": "#,##0.000"
+        }
+      },
+      "dimensions": {
+        "service_month": {
+          "type": "date",
+          "display_name": "Service month"
+        },
+        "hospital_name": {
+          "type": "string",
+          "display_name": "Hospital"
+        },
+        "region": {
+          "type": "string",
+          "display_name": "Region"
+        },
+        "surgeon_name": {
+          "type": "string",
+          "display_name": "Surgeon"
+        },
+        "drg_code": {
+          "type": "string",
+          "display_name": "AR-DRG"
+        },
+        "ml_flag_reason": {
+          "type": "string",
+          "display_name": "Model flag reason"
+        },
+        "triage_recommendation": {
+          "type": "string",
+          "display_name": "AI triage recommendation",
+          "description": "dismiss / investigate / escalate"
+        },
+        "triage_discrepancy_type": {
+          "type": "string",
+          "display_name": "AI triage hypothesis"
+        },
+        "doc_to_request": {
+          "type": "string",
+          "display_name": "Document requested"
+        },
+        "review_outcome": {
+          "type": "string",
+          "display_name": "AI document review outcome",
+          "description": "discrepancy_confirmed / needs_more_information / documents_support_claim"
+        },
+        "primary_discrepancy_type": {
+          "type": "string",
+          "display_name": "Primary discrepancy"
+        },
+        "auditor_status": {
+          "type": "string",
+          "display_name": "Auditor decision"
+        },
+        "is_flagged": {
+          "type": "boolean",
+          "display_name": "Flagged by model"
+        },
+        "documents_reviewed": {
+          "type": "boolean",
+          "display_name": "Documents reviewed"
+        }
+      }
+    },
+    "recovery": {
+      "measures": {
+        "findings": {
+          "type": "bigint",
+          "display_name": "Checks evaluated"
+        },
+        "discrepancy_findings": {
+          "type": "bigint",
+          "display_name": "Discrepancies"
+        },
+        "information_gaps": {
+          "type": "bigint",
+          "display_name": "Information gaps"
+        },
+        "claims_with_discrepancy": {
+          "type": "bigint",
+          "display_name": "Claims with discrepancies"
+        },
+        "identified_recovery": {
+          "type": "decimal",
+          "display_name": "Identified recovery",
+          "format": "AUD #,##0.00"
+        },
+        "confirmed_recovery": {
+          "type": "decimal",
+          "display_name": "Confirmed recovery",
+          "format": "AUD #,##0.00"
+        },
+        "pending_recovery": {
+          "type": "decimal",
+          "display_name": "Recovery awaiting auditor",
+          "format": "AUD #,##0.00"
+        },
+        "billed_benefit_on_discrepancies": {
+          "type": "decimal",
+          "display_name": "Benefit on disputed lines",
+          "format": "AUD #,##0.00"
+        },
+        "avg_recovery_per_discrepancy": {
+          "type": "double",
+          "display_name": "Avg recovery per discrepancy",
+          "format": "AUD #,##0.00"
+        },
+        "recovery_share_of_disputed_benefit": {
+          "type": "double",
+          "display_name": "Recovery / disputed benefit"
+        },
+        "avg_confidence": {
+          "type": "double",
+          "display_name": "Avg AI confidence (discrepancies)",
+          "format": "#,##0.00"
+        }
+      },
+      "dimensions": {
+        "service_month": {
+          "type": "date",
+          "display_name": "Service month"
+        },
+        "discrepancy_type": {
+          "type": "string",
+          "display_name": "Discrepancy type"
+        },
+        "discrepancy_title": {
+          "type": "string",
+          "display_name": "Discrepancy"
+        },
+        "audit_type": {
+          "type": "string",
+          "display_name": "Audit type",
+          "description": "prepayment / postpayment"
+        },
+        "detection_method": {
+          "type": "string",
+          "display_name": "Detection method",
+          "description": "rule = SQL check on AI-extracted facts; llm = LLM document review"
+        },
+        "outcome": {
+          "type": "string",
+          "display_name": "Finding outcome"
+        },
+        "recovery_basis": {
+          "type": "string",
+          "display_name": "Recovery basis"
+        },
+        "hospital_name": {
+          "type": "string",
+          "display_name": "Hospital"
+        },
+        "region": {
+          "type": "string",
+          "display_name": "Region"
+        },
+        "surgeon_name": {
+          "type": "string",
+          "display_name": "Surgeon"
+        },
+        "source_document_type": {
+          "type": "string",
+          "display_name": "Evidence document"
+        },
+        "auditor_status": {
+          "type": "string",
+          "display_name": "Auditor status"
+        }
+      }
+    }
+  }
+}

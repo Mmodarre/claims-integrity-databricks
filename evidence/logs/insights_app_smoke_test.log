@@ -1,0 +1,46 @@
+# Insights app: live smoke test of every data request the 7 screens make (apps/insights_app/scripts/smoke.mjs)
+# captured 2026-11-20 06:33 UTC
+
+OK   query  data_freshness               2806ms  1 rows
+OK   query  forecast_series              2005ms  128 rows
+OK   query  forecast_series              1102ms  125 rows
+OK   query  forecast_summary             1042ms  3 rows
+OK   query  hospital_risk                1615ms  295 rows
+OK   query  provider_risk                 939ms  50 rows
+OK   query  evidence_claims              1623ms  200 rows
+OK   query  claim_review                  733ms  1 rows
+OK   query  claim_findings                759ms  2 rows
+OK   query  claim_documents               800ms  2 rows
+OK   query  document_elements            1338ms  30 rows
+OK   query  low_confidence_documents      729ms  8 rows
+OK   metric claims_overview[total]                              844ms  1 rows
+OK   metric claims_overview[service_year]                       782ms  3 rows
+OK   metric claims_overview[service_month,claim_type]           739ms  104 rows
+OK   metric integrity_funnel[total]                             867ms  1 rows
+OK   metric integrity_funnel[total]                             800ms  1 rows
+OK   metric integrity_funnel[total,filtered]                    829ms  1 rows
+OK   metric integrity_funnel[triage_recommendation]             787ms  4 rows
+OK   metric integrity_funnel[service_month]                     954ms  34 rows
+OK   metric integrity_funnel[region]                            778ms  8 rows
+OK   metric integrity_funnel[hospital_name]                     862ms  15 rows
+OK   metric integrity_funnel[region]                            758ms  8 rows
+OK   metric integrity_funnel[hospital_name]                    1001ms  277 rows
+OK   metric document_ai[total]                                  757ms  1 rows
+OK   metric document_ai[total]                                  803ms  1 rows
+OK   metric document_ai[document_type]                          816ms  2 rows
+OK   metric recovery[total]                                     849ms  1 rows
+OK   metric recovery[discrepancy_title,detection_method,filtered]    798ms  12 rows
+OK   metric recovery[detection_method]                          820ms  2 rows
+OK   metric recovery[recovery_basis,filtered]                   804ms  3 rows
+OK   metric recovery[hospital_name,filtered]                    796ms  10 rows
+OK   metric recovery[surgeon_name,filtered]                     892ms  10 rows
+OK   metric recovery[region]                                    792ms  8 rows
+OK   GET    /api/app-config                                                           247ms  200 application/json; charset=utf-8 145B {"genie":{"configured":true,"alias":"default","executionIdentity":"user"},"scans":{"imageProcessing":true},"appName":"claims-integrity-insights"}
+OK   GET    /api/whoami                                                               249ms  200 application/json; charset=utf-8 124B {"email":"<operator>","user":"6343341880537484@<workspace-id>","preferredUsername":"Mehdi Modarressi"}
+OK   GET    /api/scans/CLM-W0-2021-00000082/operative_note?w=1400                    1137ms  200 image/jpeg 230984B src=3584x4800
+OK   GET    /api/scans/CLM-W0-2021-00000082/operative_note?crop=234,4389,2495,4475    609ms  200 image/jpeg 11970B src=3584x4800
+OK   GET    /api/scans/CLM-W0-2021-00000082/discharge_summary?w=1400                 3548ms  200 image/jpeg 217446B src=3584x4800
+OK   GET    /api/files/files/list                                                     254ms  403 application/json; charset=utf-8 71B {"error":"Policy denied \"list\" on volume \"files\"","plugin":"files"}
+OK   GET    /api/files/files/raw?path=/Volumes/mehdidatalake_catalog/integrity_raw    244ms  403 application/json; charset=utf-8 70B {"error":"Policy denied \"raw\" on volume \"files\"","plugin":"files"}
+
+ALL OK

@@ -1,0 +1,1323 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "0e5d98ae5412d2e046eb14967d400b66",
+        "question": [
+          "Which hospitals have the highest identified recovery, and why?"
+        ]
+      },
+      {
+        "id": "319f8560a1042ca9009388ee298b0e80",
+        "question": [
+          "What is identified recovery by discrepancy type?"
+        ]
+      },
+      {
+        "id": "572e3c8aa497a25745305a5853c5fe38",
+        "question": [
+          "Which discrepancy types most often end as information gaps?"
+        ]
+      },
+      {
+        "id": "5b5ef3bd570329295de5618e8b7379a4",
+        "question": [
+          "How have claim volumes and benefit paid trended by quarter since 2022?"
+        ]
+      },
+      {
+        "id": "7f3eb1965bc8cbae62458a73e5bb6315",
+        "question": [
+          "How much recovery has the AI identified, and how much has been confirmed by auditors?"
+        ]
+      },
+      {
+        "id": "bd006bed4e673fb1ca194f850dc8da8f",
+        "question": [
+          "What is the claim rejection rate by lodgement channel?"
+        ]
+      },
+      {
+        "id": "c6c5134d205ca1f8efab567f65093167",
+        "question": [
+          "Which hospitals have flag rates furthest above their peers?"
+        ]
+      },
+      {
+        "id": "d8f45f8b905953915a5281b94c7f8a70",
+        "question": [
+          "How confident is the AI at parsing and extracting each document type?"
+        ]
+      },
+      {
+        "id": "db83f9f3dcfb5fd7cf637aab3d31378d",
+        "question": [
+          "What is the document hit rate, and how do document review outcomes break down?"
+        ]
+      },
+      {
+        "id": "dba9e7c1b3c48bc1f67d6393131ecf0a",
+        "question": [
+          "What share of flagged claims did AI triage dismiss, and how many were escalated?"
+        ]
+      },
+      {
+        "id": "e311f64ff929bd4c99f3e5fba46807ca",
+        "question": [
+          "How do rule-based checks compare with LLM document review on discrepancies and recovery?"
+        ]
+      },
+      {
+        "id": "eebb721f509ded31c3d4e26b56f22bfb",
+        "question": [
+          "What is the forecast for claims and benefit paid next quarter by claim type?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.claims_forecast",
+        "column_configs": [
+          {
+            "column_name": "benefit_paid",
+            "description": [
+              "Weekly benefit paid in AUD (actual) or forecast."
+            ]
+          },
+          {
+            "column_name": "benefit_paid_lower",
+            "description": [
+              "Lower bound of the 90% prediction interval, AUD (forecast rows only)."
+            ]
+          },
+          {
+            "column_name": "benefit_paid_upper",
+            "description": [
+              "Upper bound of the 90% prediction interval, AUD (forecast rows only)."
+            ]
+          },
+          {
+            "column_name": "claim_type",
+            "description": [
+              "Hospital, Extras or Ambulance."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "claims",
+            "description": [
+              "Weekly claim count (actual) or forecast claim count."
+            ]
+          },
+          {
+            "column_name": "claims_lower",
+            "description": [
+              "Lower bound of the 90% prediction interval (forecast rows only)."
+            ]
+          },
+          {
+            "column_name": "claims_upper",
+            "description": [
+              "Upper bound of the 90% prediction interval (forecast rows only)."
+            ]
+          },
+          {
+            "column_name": "series",
+            "description": [
+              "'actual' = observed weekly history (2022-01-03 to 2023-12-18); 'forecast' = ai_forecast projection (2023-12-25 to 2024-06-10)."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "week",
+            "description": [
+              "Week start date (Monday)."
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.hospital_risk_profile",
+        "column_configs": [
+          {
+            "column_name": "avg_length_of_stay",
+            "description": [
+              "Average length of stay, nights."
+            ]
+          },
+          {
+            "column_name": "benefit_paid_aud",
+            "description": [
+              "Benefit paid on this hospital's episodes, AUD."
+            ]
+          },
+          {
+            "column_name": "claims_with_discrepancy",
+            "description": [
+              "Claims with at least one AI document-review discrepancy."
+            ]
+          },
+          {
+            "column_name": "discrepancy_findings",
+            "description": [
+              "AI document-review discrepancies at this hospital."
+            ]
+          },
+          {
+            "column_name": "discrepancy_mix",
+            "description": [
+              "Discrepancy types found with counts, e.g. 'drg_upcoding x2, procedure_phantom x1'."
+            ]
+          },
+          {
+            "column_name": "flag_rate",
+            "description": [
+              "Flagged claims / hospital claims, as a fraction (0.30 = 30%)."
+            ]
+          },
+          {
+            "column_name": "flag_rate_peer_z",
+            "description": [
+              "Peer z-score of the flag rate vs hospitals with >= 10 claims; >= 1.5 is notably above peers. NULL when fewer than 10 claims."
+            ],
+            "synonyms": [
+              "peer comparison",
+              "vs peers"
+            ]
+          },
+          {
+            "column_name": "flagged_claims",
+            "description": [
+              "Episodes flagged by the fraud model (score >= 0.70)."
+            ]
+          },
+          {
+            "column_name": "hospital_claims",
+            "description": [
+              "Hospital episodes at this hospital."
+            ]
+          },
+          {
+            "column_name": "hospital_id",
+            "exclude": true
+          },
+          {
+            "column_name": "hospital_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "identified_recovery_aud",
+            "description": [
+              "AI-identified recovery at this hospital, AUD, pending auditor confirmation."
+            ],
+            "synonyms": [
+              "recovery"
+            ]
+          },
+          {
+            "column_name": "information_gaps",
+            "description": [
+              "Checks where documents were silent (request more information)."
+            ]
+          },
+          {
+            "column_name": "narrative_model",
+            "exclude": true
+          },
+          {
+            "column_name": "needs_attention",
+            "description": [
+              "True when identified recovery > 0, peer z-score >= 1.5 or >= 3 triage escalations."
+            ]
+          },
+          {
+            "column_name": "recovery_rank",
+            "description": [
+              "Rank by identified recovery (1 = highest)."
+            ]
+          },
+          {
+            "column_name": "region",
+            "description": [
+              "Australian state or territory of the hospital."
+            ],
+            "synonyms": [
+              "state"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "risk_narrative",
+            "description": [
+              "AI-written explanation (3 sentences) of why the hospital does or does not warrant integrity attention, with the recommended next step. Populated when needs_attention is true."
+            ],
+            "synonyms": [
+              "why",
+              "explanation",
+              "reason"
+            ]
+          },
+          {
+            "column_name": "triage_escalations",
+            "description": [
+              "Flagged claims the AI triage escalated."
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.mv_claims_overview",
+        "column_configs": [
+          {
+            "column_name": "accommodation_type",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "benefit_paid",
+            "description": [
+              "Benefit paid by the fund, AUD."
+            ]
+          },
+          {
+            "column_name": "claim_channel",
+            "description": [
+              "Lodgement channel: HICAPS (point of sale, all Extras claims), Hospital (hospital-lodged, all Hospital claims), Paper (all Ambulance claims). Channel and claim type are 1:1 in this data."
+            ],
+            "synonyms": [
+              "lodgement channel",
+              "submission channel"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "claim_status",
+            "description": [
+              "Paid or Rejected."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "claim_type",
+            "description": [
+              "Hospital, Extras or Ambulance."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "flag_rate",
+            "description": [
+              "Fraud-model flags / hospital episodes."
+            ]
+          },
+          {
+            "column_name": "hospital_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "hospital_state",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "member_age_band",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "member_state",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "ml_flagged",
+            "description": [
+              "True when the fraud-model score is >= 0.70 (hospital claims only)."
+            ]
+          },
+          {
+            "column_name": "policy_type",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "product_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "rejection_rate",
+            "description": [
+              "Rejected claims / all claims."
+            ]
+          },
+          {
+            "column_name": "service_month",
+            "description": [
+              "First day of the month the service was provided (2021-01 to 2023-12). Derive quarters with DATE_TRUNC('QUARTER', service_month)."
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.mv_document_ai",
+        "column_configs": [
+          {
+            "column_name": "document_type",
+            "description": [
+              "discharge_summary or operative_note."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "parsed_month",
+            "description": [
+              "Month the AI processed the document (processing date, not service date)."
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.mv_integrity_funnel",
+        "column_configs": [
+          {
+            "column_name": "ai_auditor_agreement_rate",
+            "description": [
+              "Share of auditor decisions agreeing with the AI review (few decisions so far)."
+            ]
+          },
+          {
+            "column_name": "ai_dismissal_rate",
+            "description": [
+              "Flagged claims the AI triage dismissed / claims triaged."
+            ]
+          },
+          {
+            "column_name": "auditor_status",
+            "description": [
+              "Auditor decision from the auditor app (Lakebase write-back); 'pending' until an auditor decides."
+            ]
+          },
+          {
+            "column_name": "cases",
+            "description": [
+              "All integrity cases: the 817 model-flagged claims plus 59 unflagged claims whose documents were reviewed (876)."
+            ]
+          },
+          {
+            "column_name": "confirmed_recovery",
+            "description": [
+              "Auditor-confirmed recovery, AUD, from decisions recorded in the auditor app (Lakebase write-back)."
+            ]
+          },
+          {
+            "column_name": "doc_to_request",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "document_hit_rate",
+            "description": [
+              "Claims whose documents contradict the bill / claims with documents reviewed."
+            ]
+          },
+          {
+            "column_name": "hospital_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "identified_recovery",
+            "description": [
+              "AI-identified recovery (fund benefit, AUD), pending auditor confirmation."
+            ]
+          },
+          {
+            "column_name": "ml_flag_reason",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "primary_discrepancy_type",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "recovery_rate_on_flagged",
+            "description": [
+              "Governed ratio for identified recovery as a share of benefit paid on flagged claims (fraction; 0.025 = 2.5%)."
+            ],
+            "synonyms": [
+              "recovery as a percentage of benefit on flagged claims",
+              "recovery rate"
+            ]
+          },
+          {
+            "column_name": "region",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "review_outcome",
+            "description": [
+              "AI document review outcome per claim: discrepancy_confirmed, needs_more_information, documents_support_claim, or documents_not_received (no documents reviewed)."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "surgeon_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "triage_discrepancy_type",
+            "description": [
+              "Discrepancy type the AI triage suspected from claim data alone (before documents)."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "triage_recommendation",
+            "description": [
+              "AI triage verdict on a flagged claim: dismiss, investigate or escalate. NULL for unflagged claims that only had documents reviewed."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.mv_recovery",
+        "column_configs": [
+          {
+            "column_name": "audit_type",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "auditor_status",
+            "description": [
+              "'pending' until an auditor decides in the auditor app; decisions sync back via Lakebase."
+            ]
+          },
+          {
+            "column_name": "confirmed_recovery",
+            "description": [
+              "Auditor-confirmed recovery, AUD, from decisions recorded in the auditor app (Lakebase write-back)."
+            ]
+          },
+          {
+            "column_name": "detection_method",
+            "description": [
+              "rule = SQL check on AI-extracted document facts; llm = LLM review of the document text."
+            ],
+            "synonyms": [
+              "rule vs llm",
+              "detection approach"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "discrepancy_findings",
+            "description": [
+              "Number of discrepancies found (checks whose outcome is discrepancy)."
+            ],
+            "synonyms": [
+              "discrepancies",
+              "findings",
+              "issues found"
+            ]
+          },
+          {
+            "column_name": "discrepancy_title",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "discrepancy_type",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "findings",
+            "description": [
+              "Count of every AI check evaluated, including supported ones. Not the number of discrepancies: use discrepancy_findings for that."
+            ],
+            "synonyms": [
+              "checks evaluated"
+            ]
+          },
+          {
+            "column_name": "hospital_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "identified_recovery",
+            "description": [
+              "AI-identified recovery (fund benefit, AUD) on discrepancies, pending auditor confirmation."
+            ]
+          },
+          {
+            "column_name": "information_gaps",
+            "description": [
+              "Checks where the documents are silent on the billed item (request more information, not fraud)."
+            ],
+            "synonyms": [
+              "needs information",
+              "documentation gaps"
+            ]
+          },
+          {
+            "column_name": "outcome",
+            "description": [
+              "Per-check outcome: discrepancy, supported, or needs_information (information gap)."
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "recovery_basis",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "region",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "source_document_type",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "surgeon_name",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "mehdidatalake_catalog.integrity_gold.provider_risk_profile",
+        "column_configs": [
+          {
+            "column_name": "benefit_paid_aud",
+            "description": [
+              "Benefit paid on this provider's episodes, AUD."
+            ]
+          },
+          {
+            "column_name": "claims_with_discrepancy",
+            "description": [
+              "Claims with at least one AI document-review discrepancy."
+            ]
+          },
+          {
+            "column_name": "discrepancy_types",
+            "description": [
+              "Distinct discrepancy types found for this provider."
+            ]
+          },
+          {
+            "column_name": "episodes",
+            "description": [
+              "Hospital episodes where this provider was the principal surgeon."
+            ]
+          },
+          {
+            "column_name": "flag_rate",
+            "description": [
+              "Flagged episodes / episodes, as a fraction."
+            ]
+          },
+          {
+            "column_name": "flag_rate_peer_z",
+            "description": [
+              "Peer z-score of the flag rate vs providers with >= 5 episodes. NULL below 5 episodes."
+            ]
+          },
+          {
+            "column_name": "flagged_episodes",
+            "description": [
+              "Episodes flagged by the fraud model (score >= 0.70)."
+            ]
+          },
+          {
+            "column_name": "identified_recovery_aud",
+            "description": [
+              "AI-identified recovery, AUD, pending auditor confirmation."
+            ],
+            "synonyms": [
+              "recovery"
+            ]
+          },
+          {
+            "column_name": "provider_category",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "provider_id",
+            "exclude": true
+          },
+          {
+            "column_name": "provider_name",
+            "description": [
+              "Principal surgeon / provider display name."
+            ],
+            "synonyms": [
+              "surgeon",
+              "doctor"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "271f7cf102010192cba7df6753cb9c9f",
+        "content": [
+          "## PURPOSE\n",
+          "- Answers questions about the insurer's claims-integrity programme for integrity team leads and executives.\n",
+          "- All money is AUD. Claims cover service dates 2021-01-01 to 2023-12-31 (2021 is a ramp-up year; 2022 onward is steady state). Data is de-identified: there is no member- or patient-level data.\n",
+          "\n",
+          "## DEFINITIONS\n",
+          "- Flagged = fraud-model score >= 0.70 (hospital claims only; 817 flagged claims).\n",
+          "- Identified recovery = fund benefit the AI document review found recoverable; it is not yet auditor-confirmed. Confirmed recovery = amount confirmed by an auditor.\n",
+          "- Auditor decisions come from the auditor app via Lakebase write-back. Only a handful of decisions exist so far, so most findings are still 'pending' and confirmed recovery is small; say this explicitly instead of presenting it as a finding.\n",
+          "- Recovery is always fund benefit (money the fund paid and can recover), never provider charges or member gap.\n",
+          "- \"Discrepancies\", \"findings\" or \"issues found\" = discrepancy_findings in mv_recovery. The measure literally named findings counts every check evaluated, including supported ones.\n",
+          "- Information gap = the documents are silent on a billed item (outcome needs_information). It means \"request more information\", never fraud.\n",
+          "\n",
+          "## DISAMBIGUATION\n",
+          "- Relative dates (\"this year\", \"last quarter\", \"recent\") are relative to the latest data month, 2023-12, not today's date: this year = 2023, last year = 2022.\n",
+          "- \"Which / top <hospitals, surgeons, types>\" without a number: return the top 10 ranked rows (keep ties), not only the first.\n",
+          "- Subset follow-ups (\"of the escalated / dismissed claims, how many ...\"): filter on that subset's dimension (for example triage_recommendation) so every measure is computed within the subset.\n",
+          "- Surgeon, doctor and provider all mean the principal surgeon: provider_risk_profile for rankings, surgeon_name in mv_recovery or mv_integrity_funnel for breakdowns.\n",
+          "\n",
+          "## SOURCE ROUTING\n",
+          "- Claims volume, benefit paid, charges, member gap, rejections, lodgement channel, payment speed, length of stay, model flag rate over time: mv_claims_overview.\n",
+          "- Funnel (model flag -> AI triage -> document review -> auditor), dismissals, escalations, document hit rate: mv_integrity_funnel.\n",
+          "- Recovery and discrepancies by type, detection method, audit type, hospital or surgeon: mv_recovery.\n",
+          "- Document parsing and extraction quality, discrepancies by document type: mv_document_ai.\n",
+          "- Hospital rankings, peer comparison and the reason why: hospital_risk_profile (quote risk_narrative). Surgeon rankings: provider_risk_profile.\n",
+          "- Forecasts and projections: claims_forecast rows with series 'forecast' (history rows are 'actual'). The forecast starts the week of 2023-12-25; \"next quarter\" means 2024 Q1 (Jan-Mar 2024). For forecast-vs-actual comparisons take the actuals from mv_claims_overview by service_month (calendar-exact); claims_forecast 'actual' weeks do not align to calendar quarters.\n",
+          "- Metric views must be aggregated with MEASURE(measure_name) and grouped by dimensions; never SELECT * from them, never SUM or AVG a measure, never filter on a measure in WHERE.\n",
+          "\n",
+          "## CONSTRAINTS\n",
+          "- Never speculate about the intent, honesty or guilt of any named surgeon, hospital or person. Report the metrics and the AI narrative, and state that findings are AI-identified and pending auditor review.\n",
+          "- Decline requests for individual member or patient details; that data is not in this space.\n",
+          "\n",
+          "## Instructions you must follow when providing summaries\n",
+          "- Show money in AUD with sensible rounding (for example AUD 135.8k, AUD 40.2M) and percentages to one decimal place.\n",
+          "- State the period or population covered (for example all claims 2021-2023, the 817 flagged claims, the 200 claims with documents reviewed).\n",
+          "- When quoting recovery, say it is AI-identified and pending auditor confirmation.\n",
+          "- Round counts, including forecast claim counts, to the nearest whole number (never truncate). Label quarters as 2024 Q1, not as dates.\n",
+          "- When risk_narrative is returned, summarise its explanation and recommended next step for each hospital."
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "021c628eae9a7259c2a0e6347e31cda5",
+        "question": [
+          "Walk me through the integrity funnel from model flag to auditor decision"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  MEASURE(mv_integrity_funnel.flagged_claims) AS flagged_claims,\n",
+          "  MEASURE(mv_integrity_funnel.triaged_claims) AS ai_triaged,\n",
+          "  MEASURE(mv_integrity_funnel.dismissed_by_ai) AS dismissed_by_ai,\n",
+          "  MEASURE(mv_integrity_funnel.ai_dismissal_rate) AS ai_dismissal_rate,\n",
+          "  MEASURE(mv_integrity_funnel.audits_recommended) AS audits_recommended,\n",
+          "  MEASURE(mv_integrity_funnel.escalations) AS escalations,\n",
+          "  MEASURE(mv_integrity_funnel.claims_document_reviewed) AS claims_documents_reviewed,\n",
+          "  MEASURE(mv_integrity_funnel.discrepancies_confirmed) AS discrepancy_confirmed,\n",
+          "  MEASURE(mv_integrity_funnel.needs_more_information) AS needs_more_information,\n",
+          "  MEASURE(mv_integrity_funnel.documents_support_claim) AS documents_support_claim,\n",
+          "  MEASURE(mv_integrity_funnel.document_hit_rate) AS document_hit_rate,\n",
+          "  MEASURE(mv_integrity_funnel.identified_recovery) AS identified_recovery_aud,\n",
+          "  MEASURE(mv_integrity_funnel.auditor_decisions) AS auditor_decisions,\n",
+          "  MEASURE(mv_integrity_funnel.confirmed_recovery) AS confirmed_recovery_aud\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel"
+        ],
+        "usage_guidance": [
+          "Funnel questions: mv_integrity_funnel measures in one row; dismissal and hit rates are governed measures."
+        ]
+      },
+      {
+        "id": "45f194dc75b2cd20054804fc224a9792",
+        "question": [
+          "What is the forecast for claims and benefit paid next quarter by claim type?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  claims_forecast.claim_type,\n",
+          "  ROUND(SUM(claims_forecast.claims)) AS forecast_claims,\n",
+          "  ROUND(SUM(claims_forecast.claims_lower)) AS forecast_claims_low,\n",
+          "  ROUND(SUM(claims_forecast.claims_upper)) AS forecast_claims_high,\n",
+          "  ROUND(SUM(claims_forecast.benefit_paid), 2) AS forecast_benefit_paid_aud,\n",
+          "  ROUND(SUM(claims_forecast.benefit_paid_lower), 2) AS forecast_benefit_paid_low_aud,\n",
+          "  ROUND(SUM(claims_forecast.benefit_paid_upper), 2) AS forecast_benefit_paid_high_aud\n",
+          "FROM mehdidatalake_catalog.integrity_gold.claims_forecast\n",
+          "WHERE claims_forecast.series = 'forecast'\n",
+          "  AND claims_forecast.week >= DATE'2024-01-01'\n",
+          "  AND claims_forecast.week < DATE'2024-04-01'\n",
+          "GROUP BY claims_forecast.claim_type\n",
+          "ORDER BY forecast_benefit_paid_aud DESC"
+        ],
+        "usage_guidance": [
+          "Forecast questions: claims_forecast with series = 'forecast'. Next quarter = 2024 Q1 (weeks starting 2024-01-01 to 2024-03-25). Summed weekly bounds give a conservative range."
+        ]
+      },
+      {
+        "id": "5ff9f4a95f716e3733081a8797b6a674",
+        "question": [
+          "How do rule-based checks compare with LLM document review?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  mv_recovery.detection_method,\n",
+          "  MEASURE(mv_recovery.findings) AS checks_evaluated,\n",
+          "  MEASURE(mv_recovery.discrepancy_findings) AS discrepancies,\n",
+          "  MEASURE(mv_recovery.information_gaps) AS information_gaps,\n",
+          "  MEASURE(mv_recovery.identified_recovery) AS identified_recovery_aud,\n",
+          "  MEASURE(mv_recovery.avg_recovery_per_discrepancy) AS avg_recovery_per_discrepancy_aud,\n",
+          "  MEASURE(mv_recovery.avg_confidence) AS avg_ai_confidence\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_recovery\n",
+          "GROUP BY ALL\n",
+          "ORDER BY identified_recovery_aud DESC"
+        ],
+        "usage_guidance": [
+          "Detection method comparisons: mv_recovery grouped by detection_method (rule | llm)."
+        ]
+      },
+      {
+        "id": "a4ba798136f168c730157ce3f5f7ccbc",
+        "question": [
+          "What is identified recovery by discrepancy type?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  mv_recovery.discrepancy_type,\n",
+          "  mv_recovery.discrepancy_title,\n",
+          "  MEASURE(mv_recovery.discrepancy_findings) AS discrepancies,\n",
+          "  MEASURE(mv_recovery.identified_recovery) AS identified_recovery_aud,\n",
+          "  MEASURE(mv_recovery.confirmed_recovery) AS confirmed_recovery_aud\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_recovery\n",
+          "GROUP BY ALL\n",
+          "ORDER BY identified_recovery_aud DESC NULLS LAST"
+        ],
+        "usage_guidance": [
+          "Recovery breakdowns: mv_recovery. Discrepancy counts use discrepancy_findings (not findings, which counts all checks)."
+        ]
+      },
+      {
+        "id": "be516c0826379aabe31e32e43ef5b686",
+        "question": [
+          "How have claim volumes and benefit paid trended by quarter?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  CAST(DATE_TRUNC('QUARTER', mv_claims_overview.service_month) AS DATE) AS service_quarter,\n",
+          "  MEASURE(mv_claims_overview.claim_count) AS claims,\n",
+          "  MEASURE(mv_claims_overview.benefit_paid) AS benefit_paid_aud,\n",
+          "  MEASURE(mv_claims_overview.avg_benefit_per_claim) AS avg_benefit_per_claim_aud\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview\n",
+          "WHERE mv_claims_overview.service_year >= 2022\n",
+          "GROUP BY ALL\n",
+          "ORDER BY service_quarter"
+        ],
+        "usage_guidance": [
+          "Time trends on mv_claims_overview: derive quarter/year from service_month and aggregate measures with MEASURE()."
+        ]
+      },
+      {
+        "id": "d1106be1a6bc23cfa2d74a2f16bb90e7",
+        "question": [
+          "How do document review results differ by AI triage recommendation?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  mv_integrity_funnel.triage_recommendation,\n",
+          "  MEASURE(mv_integrity_funnel.flagged_claims) AS flagged_claims,\n",
+          "  MEASURE(mv_integrity_funnel.claims_document_reviewed) AS claims_documents_reviewed,\n",
+          "  MEASURE(mv_integrity_funnel.discrepancies_confirmed) AS discrepancy_confirmed,\n",
+          "  MEASURE(mv_integrity_funnel.identified_recovery) AS identified_recovery_aud\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel\n",
+          "WHERE mv_integrity_funnel.is_flagged = true\n",
+          "GROUP BY ALL\n",
+          "ORDER BY flagged_claims DESC"
+        ],
+        "usage_guidance": [
+          "Funnel measures can be sliced by any dimension. For subsets such as escalated or dismissed claims, filter or group by triage_recommendation so every measure is computed within that subset."
+        ]
+      },
+      {
+        "id": "e376eb35da1eb7847279ba1e3bd6a439",
+        "question": [
+          "Which hospitals have the highest identified recovery, and why?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  hospital_risk_profile.hospital_name,\n",
+          "  hospital_risk_profile.region,\n",
+          "  hospital_risk_profile.identified_recovery_aud,\n",
+          "  hospital_risk_profile.claims_with_discrepancy,\n",
+          "  hospital_risk_profile.discrepancy_mix,\n",
+          "  ROUND(hospital_risk_profile.flag_rate * 100, 1) AS flag_rate_pct,\n",
+          "  hospital_risk_profile.flag_rate_peer_z,\n",
+          "  hospital_risk_profile.risk_narrative\n",
+          "FROM mehdidatalake_catalog.integrity_gold.hospital_risk_profile\n",
+          "ORDER BY hospital_risk_profile.identified_recovery_aud DESC\n",
+          "LIMIT 10"
+        ],
+        "usage_guidance": [
+          "Hospital ranking questions: hospital_risk_profile; always include risk_narrative to explain why. flag_rate is a fraction (0.30 = 30%)."
+        ]
+      },
+      {
+        "id": "ef974ae0c2a7a00371c142446f993baa",
+        "question": [
+          "What is the claim rejection rate by lodgement channel?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  mv_claims_overview.claim_channel,\n",
+          "  MEASURE(mv_claims_overview.claim_count) AS claims,\n",
+          "  MEASURE(mv_claims_overview.rejected_claims) AS rejected_claims,\n",
+          "  MEASURE(mv_claims_overview.rejection_rate) AS rejection_rate\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview\n",
+          "GROUP BY ALL\n",
+          "ORDER BY rejection_rate DESC"
+        ],
+        "usage_guidance": [
+          "Ratio measures (rejection_rate, flag_rate, benefit_to_charge_ratio) are governed: use MEASURE(), never recompute them."
+        ]
+      },
+      {
+        "id": "f9fe3ad1481551a81df41d6983d7f774",
+        "question": [
+          "How confident is the AI at parsing and extracting each document type?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  mv_document_ai.document_type,\n",
+          "  MEASURE(mv_document_ai.documents_processed) AS documents_processed,\n",
+          "  MEASURE(mv_document_ai.avg_parse_confidence) AS avg_parse_confidence,\n",
+          "  MEASURE(mv_document_ai.avg_extraction_confidence) AS avg_extraction_confidence,\n",
+          "  MEASURE(mv_document_ai.type_check_pass_rate) AS type_check_pass_rate,\n",
+          "  MEASURE(mv_document_ai.total_discrepancies_found) AS discrepancies_found,\n",
+          "  MEASURE(mv_document_ai.total_information_gaps) AS information_gaps\n",
+          "FROM mehdidatalake_catalog.integrity_gold.mv_document_ai\n",
+          "GROUP BY ALL"
+        ],
+        "usage_guidance": [
+          "Document processing questions: mv_document_ai grouped by document_type."
+        ]
+      }
+    ],
+    "sql_snippets": {
+      "filters": [
+        {
+          "id": "6c9a0b08d4755a2f41b0831588ca1ce2",
+          "display_name": "Steady-state years (2022-2023)",
+          "sql": [
+            "mv_claims_overview.service_year >= 2022"
+          ],
+          "synonyms": [
+            "steady state",
+            "excluding ramp-up",
+            "excluding 2021"
+          ]
+        },
+        {
+          "id": "d5d10ea363b5672e8fcfc9db2fc4245f",
+          "display_name": "Next quarter forecast (2024 Q1)",
+          "sql": [
+            "claims_forecast.series = 'forecast' AND claims_forecast.week >= DATE'2024-01-01' AND claims_forecast.week < DATE'2024-04-01'"
+          ],
+          "synonyms": [
+            "next quarter",
+            "Q1 2024",
+            "coming quarter",
+            "upcoming quarter"
+          ]
+        }
+      ],
+      "expressions": [
+        {
+          "id": "a9666454705a118453830e3733197832",
+          "alias": "service_quarter",
+          "display_name": "Service quarter",
+          "sql": [
+            "CAST(DATE_TRUNC('QUARTER', mv_claims_overview.service_month) AS DATE)"
+          ],
+          "synonyms": [
+            "quarter"
+          ]
+        }
+      ]
+    }
+  },
+  "benchmarks": {
+    "questions": [
+      {
+        "id": "005f7cba50b78d83cc6c24b4d3479b5f",
+        "question": [
+          "How much recovery has been confirmed by auditors so far?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_recovery.confirmed_recovery) AS confirmed_recovery FROM mehdidatalake_catalog.integrity_gold.mv_recovery"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "01700b4be4ea84adb015bff32b5c262d",
+        "question": [
+          "What was total benefit paid in 2023 compared with 2022?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_claims_overview.benefit_paid) AS benefit_paid FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview WHERE mv_claims_overview.service_year IN (2022, 2023) GROUP BY mv_claims_overview.service_year ORDER BY mv_claims_overview.service_year"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "062879bc7d8ebec2daa7ed06c26dc3ed",
+        "question": [
+          "How does next quarter's forecast benefit paid compare with the same quarter last year?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "WITH f AS (SELECT claims_forecast.claim_type, SUM(claims_forecast.benefit_paid) AS forecast_benefit_paid FROM mehdidatalake_catalog.integrity_gold.claims_forecast WHERE claims_forecast.series = 'forecast' AND claims_forecast.week >= DATE'2024-01-01' AND claims_forecast.week < DATE'2024-04-01' GROUP BY claims_forecast.claim_type), a AS (SELECT mv_claims_overview.claim_type, MEASURE(mv_claims_overview.benefit_paid) AS actual_benefit_paid FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview WHERE mv_claims_overview.service_month >= DATE'2023-01-01' AND mv_claims_overview.service_month < DATE'2023-04-01' GROUP BY ALL) SELECT f.claim_type, f.forecast_benefit_paid, a.actual_benefit_paid, f.forecast_benefit_paid - a.actual_benefit_paid AS change_aud FROM f JOIN a ON f.claim_type = a.claim_type ORDER BY f.forecast_benefit_paid DESC"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "1dbc54c1aa4a55842d61848bec7072e4",
+        "question": [
+          "Of the flagged claims the AI triage dismissed, how many later had a discrepancy confirmed in documents, and how much recovery was identified on them?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_integrity_funnel.discrepancies_confirmed) AS confirmed, MEASURE(mv_integrity_funnel.identified_recovery) AS identified_recovery FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel WHERE mv_integrity_funnel.triage_recommendation = 'dismiss'"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "2ce0620a2744dd1432cd21155740403d",
+        "question": [
+          "Forecast claim volume for Q1 2024 by claim type, with the range"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT claims_forecast.claim_type, ROUND(SUM(claims_forecast.claims)) AS claims, ROUND(SUM(claims_forecast.claims_lower)) AS low, ROUND(SUM(claims_forecast.claims_upper)) AS high FROM mehdidatalake_catalog.integrity_gold.claims_forecast WHERE claims_forecast.series = 'forecast' AND claims_forecast.week >= DATE'2024-01-01' AND claims_forecast.week < DATE'2024-04-01' GROUP BY claims_forecast.claim_type"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3a1cad4b0b1244c5cf7e19e158993a57",
+        "question": [
+          "What is the fraud-model flag rate on hospital episodes by year?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_claims_overview.flag_rate) AS flag_rate FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview GROUP BY mv_claims_overview.service_year ORDER BY mv_claims_overview.service_year"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3e1a095eb6d692bfe7484cdd22bc348d",
+        "question": [
+          "Top 5 hospitals by identified recovery and the reason they stand out"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT hospital_risk_profile.hospital_name, hospital_risk_profile.identified_recovery_aud FROM mehdidatalake_catalog.integrity_gold.hospital_risk_profile ORDER BY hospital_risk_profile.identified_recovery_aud DESC LIMIT 5"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "406beabc2b2bada042d7960fa5eebe29",
+        "question": [
+          "Break down AI-identified recovery by discrepancy type"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT mv_recovery.discrepancy_type, MEASURE(mv_recovery.identified_recovery) AS identified_recovery FROM mehdidatalake_catalog.integrity_gold.mv_recovery GROUP BY ALL ORDER BY identified_recovery DESC NULLS LAST"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "47592f2d6ea81ca72335bab8c0f83692",
+        "question": [
+          "Which Queensland hospitals have the highest identified recovery?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT hospital_risk_profile.hospital_name, hospital_risk_profile.identified_recovery_aud FROM mehdidatalake_catalog.integrity_gold.hospital_risk_profile WHERE hospital_risk_profile.region = 'QLD' ORDER BY hospital_risk_profile.identified_recovery_aud DESC LIMIT 10"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "5d2c10abb10275ac1f64b3983c4e5e0c",
+        "question": [
+          "Show quarterly claim counts and benefit paid for 2022 and 2023"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_claims_overview.claim_count) AS claims, MEASURE(mv_claims_overview.benefit_paid) AS benefit_paid FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview WHERE mv_claims_overview.service_year IN (2022, 2023) GROUP BY DATE_TRUNC('QUARTER', mv_claims_overview.service_month) ORDER BY 1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "69c025ebe245232e85575d905d3ab480",
+        "question": [
+          "Which surgeons have the highest identified recovery?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT provider_risk_profile.provider_name, provider_risk_profile.identified_recovery_aud FROM mehdidatalake_catalog.integrity_gold.provider_risk_profile ORDER BY provider_risk_profile.identified_recovery_aud DESC LIMIT 10"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "7049872e7444d7a2c90d730b7fa46383",
+        "question": [
+          "How many claims did the fraud model flag in total?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_claims_overview.flagged_claims) AS flagged_claims FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "7951377f0270802045012b0b744bf36c",
+        "question": [
+          "How much DRG upcoding recovery has been identified in NSW?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_recovery.identified_recovery) AS identified_recovery FROM mehdidatalake_catalog.integrity_gold.mv_recovery WHERE mv_recovery.discrepancy_type = 'drg_upcoding' AND mv_recovery.region = 'NSW'"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "8c1d3f7e372fbc57c458d4311fb03b64",
+        "question": [
+          "Of the claims whose documents were reviewed, what share had a discrepancy confirmed by the AI?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_integrity_funnel.document_hit_rate) AS document_hit_rate FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "9015c084fe1710c0e0dfee6596bf75c7",
+        "question": [
+          "What's the average extraction confidence for discharge summaries vs operative notes?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT mv_document_ai.document_type, MEASURE(mv_document_ai.avg_extraction_confidence) AS avg_extraction_confidence FROM mehdidatalake_catalog.integrity_gold.mv_document_ai GROUP BY ALL"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "91c2c8ea881135a3cc6c5df96858d4dd",
+        "question": [
+          "Compare rule vs LLM detection by number of discrepancies and recovery"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT mv_recovery.detection_method, MEASURE(mv_recovery.discrepancy_findings) AS discrepancies, MEASURE(mv_recovery.identified_recovery) AS identified_recovery FROM mehdidatalake_catalog.integrity_gold.mv_recovery GROUP BY ALL"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "9c686e99455043b583310d52f3fbcb1c",
+        "question": [
+          "Which lodgement channel has the highest rejection rate?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT mv_claims_overview.claim_channel, MEASURE(mv_claims_overview.rejection_rate) AS rejection_rate FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview GROUP BY ALL ORDER BY rejection_rate DESC LIMIT 1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "a3bd39b3659d964e1aa49be82232258b",
+        "question": [
+          "What is the average benefit per claim by claim type?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT mv_claims_overview.claim_type, MEASURE(mv_claims_overview.avg_benefit_per_claim) AS avg_benefit_per_claim FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview GROUP BY ALL"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ac5ee5df68629d64bcf09d31438d3861",
+        "question": [
+          "What is identified recovery as a percentage of benefit paid on flagged claims?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_integrity_funnel.recovery_rate_on_flagged) AS recovery_rate_on_flagged FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ad5c1ec1ed510e351e5cd09956a7b1a9",
+        "question": [
+          "Which discrepancy types have the most information gaps?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT mv_recovery.discrepancy_type, MEASURE(mv_recovery.information_gaps) AS information_gaps FROM mehdidatalake_catalog.integrity_gold.mv_recovery GROUP BY ALL ORDER BY information_gaps DESC"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "b15b85c676cfc574d7f94a33a36681ec",
+        "question": [
+          "What was the rejection rate for Extras claims each year?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_claims_overview.rejection_rate) AS rejection_rate FROM mehdidatalake_catalog.integrity_gold.mv_claims_overview WHERE mv_claims_overview.claim_type = 'Extras' GROUP BY mv_claims_overview.service_year ORDER BY mv_claims_overview.service_year"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "c975636bc63ad9ac456d74f3dddd6d21",
+        "question": [
+          "How many claims did AI triage escalate, and how many of those had a discrepancy confirmed in the documents?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_integrity_funnel.escalations) AS escalations, MEASURE(mv_integrity_funnel.discrepancies_confirmed) AS confirmed FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel WHERE mv_integrity_funnel.triage_recommendation = 'escalate'"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dd1e9bc86d6c9eff25384ec1e5f044be",
+        "question": [
+          "What percentage of flagged claims did the AI triage dismiss?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT MEASURE(mv_integrity_funnel.ai_dismissal_rate) AS ai_dismissal_rate FROM mehdidatalake_catalog.integrity_gold.mv_integrity_funnel"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fe810abf843345cd83726232a942f55f",
+        "question": [
+          "Which hospitals have the most abnormal flag rate compared to their peers?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT hospital_risk_profile.hospital_name, hospital_risk_profile.flag_rate_peer_z FROM mehdidatalake_catalog.integrity_gold.hospital_risk_profile ORDER BY hospital_risk_profile.flag_rate_peer_z DESC NULLS LAST LIMIT 10"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

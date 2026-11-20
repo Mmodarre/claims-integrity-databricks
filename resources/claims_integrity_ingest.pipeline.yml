@@ -1,0 +1,23 @@
+resources:
+  pipelines:
+    claims_integrity_ingest:
+      name: claims_integrity_ingest
+      catalog: ${var.catalog}
+      schema: ${var.silver_schema}
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      root_path: ../src/ingest
+      libraries:
+        - glob:
+            include: ../src/ingest/**
+      configuration:
+        catalog: ${var.catalog}
+        bronze_schema: ${var.bronze_schema}
+        silver_schema: ${var.silver_schema}
+        gold_schema: ${var.gold_schema}
+        eval_schema: ${var.eval_schema}
+        raw_volume_path: ${var.raw_volume_path}
+      tags:
+        project: claims_integrity
+        layer: ingest

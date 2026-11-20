@@ -1,0 +1,26 @@
+resources:
+  pipelines:
+    claims_integrity_ai:
+      name: claims_integrity_ai
+      catalog: ${var.catalog}
+      schema: ${var.silver_schema}
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      root_path: ../src/ai
+      libraries:
+        - glob:
+            include: ../src/ai/**
+      configuration:
+        bronze_schema: ${var.bronze_schema}
+        silver_schema: ${var.silver_schema}
+        gold_schema: ${var.gold_schema}
+        eval_schema: ${var.eval_schema}
+        raw_volume_path: ${var.raw_volume_path}
+        llm_endpoint: ${var.llm_endpoint}
+        narrative_endpoint: ${var.narrative_endpoint}
+        # AI calls run per partition; spread small inputs so calls run in parallel.
+        ai_partitions: "64"
+      tags:
+        project: claims_integrity
+        layer: ai

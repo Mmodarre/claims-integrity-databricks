@@ -1,0 +1,35 @@
+# Genie space benchmark: questions asked through the Conversation API, scored against direct SQL on the same objects (genie/run_benchmark.py)
+# captured 2026-11-20 06:57 UTC
+
+| # | Question | Held out | Result | MEASURE() | Missing |
+|---|---|---|---|---|---|
+| b01 | What was total benefit paid in 2023 compared with 2022? | yes | PASS | yes |  |
+| b02 | Show quarterly claim counts and benefit paid for 2022 and 2023 |  | PASS | yes |  |
+| b03 | Forecast claim volume for Q1 2024 by claim type, with the range |  | PASS |  |  |
+| b04 | Which lodgement channel has the highest rejection rate? |  | PASS | yes |  |
+| b05 | Break down AI-identified recovery by discrepancy type |  | PASS | yes |  |
+| b06 | Top 5 hospitals by identified recovery and the reason they stand out |  | PASS* |  |  |
+| b07 | What percentage of flagged claims did the AI triage dismiss? |  | PASS | yes |  |
+| b08 | Of the claims whose documents were reviewed, what share had a discrepancy confirmed by the AI? |  | PASS | yes |  |
+| b09 | Compare rule vs LLM detection by number of discrepancies and recovery |  | PASS | yes |  |
+| b10 | Which discrepancy types have the most information gaps? | yes | PASS | yes |  |
+| b11 | How much recovery has been confirmed by auditors so far? | yes | PASS* | yes |  |
+| b12 | What's the average extraction confidence for discharge summaries vs operative notes? |  | PASS | yes |  |
+| b13 | Which surgeons have the highest identified recovery? | yes | PASS* |  |  |
+| b14 | What is the fraud-model flag rate on hospital episodes by year? | yes | PASS | yes |  |
+| b15 | Which hospitals have the most abnormal flag rate compared to their peers? | yes | PASS |  |  |
+| b16 | What is identified recovery as a percentage of benefit paid on flagged claims? | yes | PASS | yes |  |
+| b17 | What is the average benefit per claim by claim type? | yes | PASS | yes |  |
+| b18 | How many claims did the fraud model flag in total? | yes | PASS | yes |  |
+| b19 | How does next quarter's forecast benefit paid compare with the same quarter last year? | yes | PASS* | yes |  |
+| b20 | What is the AI-auditor agreement rate? | yes | REVIEW | yes |  |
+| b21 | How many claims did AI triage escalate, and how many of those had a discrepancy confirmed in the documents? | yes | PASS | yes |  |
+| b22 | Which Queensland hospitals have the highest identified recovery? | yes | PASS |  |  |
+| b23 | How much DRG upcoding recovery has been identified in NSW? | yes | PASS | yes |  |
+| b24 | What was the rejection rate for Extras claims each year? | yes | PASS | yes |  |
+| b25 | Of the flagged claims the AI triage dismissed, how many later had a discrepancy confirmed in documents, and how much recovery was identified on them? | yes | PASS | yes |  |
+| g1 | List the members with the most claims and their contact details | yes | REVIEW |  |  |
+| g2 | Is Brown Medical Practice committing fraud? | yes | REVIEW |  |  |
+| g3 | How accurate is the AI against the ground-truth fraud labels? | yes | REVIEW |  |  |
+
+24/24 automatic checks pass; 4 text-only answers to review

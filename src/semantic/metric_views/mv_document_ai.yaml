@@ -1,0 +1,63 @@
+version: 1.1
+source: ${catalog}.${gold_schema}.document_ai_fact
+comment: "AI document processing: what ai_parse_document, ai_classify, ai_extract and the LLM review produced for each clinical document."
+dimensions:
+  - name: document_type
+    expr: document_type
+    display_name: Document type
+  - name: parsed_month
+    expr: DATE_TRUNC('MONTH', parsed_at)
+    display_name: Processed month
+  - name: type_check_passed
+    expr: type_check_passed
+    display_name: AI type check passed
+  - name: has_discrepancy
+    expr: discrepancies_found > 0
+    display_name: Raised a discrepancy
+measures:
+  - name: documents_processed
+    expr: COUNT(1)
+    display_name: Documents processed
+    synonyms: ["documents", "scans"]
+  - name: documents_parsed
+    expr: COUNT(1) FILTER (WHERE parsed_ok)
+    display_name: Parsed successfully
+  - name: documents_extracted
+    expr: COUNT(1) FILTER (WHERE extracted_ok)
+    display_name: Facts extracted
+  - name: layout_elements
+    expr: SUM(element_count)
+    display_name: Layout elements parsed
+  - name: avg_parse_confidence
+    expr: AVG(avg_element_confidence)
+    display_name: Avg parse confidence
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: avg_extraction_confidence
+    expr: AVG(avg_field_confidence)
+    display_name: Avg extraction confidence
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: type_check_pass_rate
+    expr: COUNT(1) FILTER (WHERE type_check_passed) / COUNT(1)
+    display_name: Type check pass rate
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: total_checks_evaluated
+    expr: SUM(checks_evaluated)
+    display_name: Integrity checks evaluated
+  - name: total_discrepancies_found
+    expr: SUM(discrepancies_found)
+    display_name: Discrepancies found
+  - name: total_llm_discrepancies
+    expr: SUM(llm_discrepancies)
+    display_name: Found by LLM review
+  - name: total_rule_discrepancies
+    expr: SUM(rule_discrepancies)
+    display_name: Found by rules on extracted facts
+  - name: total_information_gaps
+    expr: SUM(information_gaps)
+    display_name: Information gaps flagged

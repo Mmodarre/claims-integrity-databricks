@@ -1,0 +1,109 @@
+# Lakeflow: bundle deploy + full job run claims_integrity_etl (setup -> ingest -> ai -> refresh_lakebase + governance + semantic)
+# captured 2026-11-20 06:53 UTC
+
+Uploading bundle files to /Workspace/Users/<operator>/.bundle/claims_integrity/dev/files...
+Updated jobs.claims_integrity_etl
+Files: 33 uploaded, 0 deleted
+Resources: 0 created, 1 changed, 0 deleted, 2 unchanged
+=== databricks bundle run claims_integrity_etl ===
+Run URL: https://<workspace-host>/jobs/518972156758222/runs/739198944604163?o=<workspace-id>
+
+2026-11-20 06:43:54 "[dev mehdi_modarressi] claims_integrity_etl" RUNNING
+2026-11-20 06:53:01 "[dev mehdi_modarressi] claims_integrity_etl" TERMINATED SUCCESS
+Output:
+=======
+Task setup:
+SQL Task Output:
+{
+  "file_output": {
+    "query_result": {
+      "truncated": false
+    },
+    "query_text": "-- Idempotent setup run by the job before the pipelines (SQL warehouse task; :catalog, :gold_schema).\n\n-- 1. Column-mask functions for member PII (Unity Catalog fine-grained access control).\n--    Workspace admins and the claims_integrity_auditors group see real values; everyone else is masked.\n--    Applied to gold.claim_detail by the ingest pipeline (MASK clause). Lakebase synced tables are\n--    created by an admin, so the auditor app keeps real identities for authorised auditors.\nCREATE OR REPLACE FUNCTION IDENTIFIER(:catalog || '.' || :gold_schema || '.mask_pii_string')(value STRING)\n  RETURNS STRING\n  COMMENT 'Column mask: reveal member PII only to admins and the claims_integrity_auditors group.'\n  RETURN CASE WHEN is_member('admins') OR is_account_group_member('claims_integrity_auditors') THEN value\n              ELSE '***MASKED***' END;\n\nCREATE OR REPLACE FUNCTION IDENTIFIER(:catalog || '.' || :gold_schema || '.mask_pii_date')(value DATE)\n  RETURNS DATE\n  COMMENT 'Column mask for PII dates (date of birth): NULL unless admin or claims_integrity_auditors.'\n  RETURN CASE WHEN is_member('admins') OR is_account_group_member('claims_integrity_auditors') THEN value\n              ELSE CAST(NULL AS DATE) END;\n\n-- 2. Auditor decisions consumed by the AI pipeline's integrity facts. Starts as an empty typed view;\n--    once the auditor app's Lakebase project and Lakehouse Sync exist, auditor_decision_from_lakebase.sql\n--    replaces it with the latest-state view over the synced history. IF NOT EXISTS keeps that upgrade.\nCREATE VIEW IF NOT EXISTS IDENTIFIER(:catalog || '.' || :gold_schema || '.auditor_decision')\n  COMMENT 'Auditor decisions (empty until the Lakebase write-back is connected).'\nAS SELECT\n  CAST(NULL AS STRING)         AS decision_id,\n  CAST(NULL AS STRING)         AS claim_id,\n  CAST(NULL AS STRING)         AS finding_id,\n  CAST(NULL AS STRING)         AS decision,\n  CAST(NULL AS DECIMAL(12, 2)) AS confirmed_recovery_aud,\n  CAST(NULL AS STRING)         AS decided_by,\n  CAST(NULL AS TIMESTAMP)      AS decided_at,\n  CAST(NULL AS STRING)         AS note\nWHERE false;\n",
+    "sql_statements": [
+      {
+        "lookup_key": "CiQwMWYxZTRhZC1jMTUyLTEzNjAtOTQwZC05OTFiNjQ5ZjcyM2UQpI/KvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZC1jMTUyLTEzNmItOTYwYS02MTlkMGNlMjJiY2YQiJjKvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZC1jMTUyLTEzNmMtOTdlZS1lYTUzNzA3Yjg3YjAQlJ/KvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      }
+    ],
+    "warehouse_id": "148ccb90800933a1"
+  }
+}
+=======
+Task governance:
+SQL Task Output:
+{
+  "file_output": {
+    "query_result": {
+      "truncated": false
+    },
+    "query_text": "-- Unity Catalog governance applied after the pipelines (idempotent; :catalog plus schema params).\n-- ALTER ... SET TAGS does not accept IDENTIFIER(), so each statement is built and run with EXECUTE IMMEDIATE (double-quoted literals keep the inner quotes).\n-- Classification tags use the workspace's governed tag policies (data_classification, pii, class.*).\n\n-- Schema classification\nEXECUTE IMMEDIATE \"ALTER SCHEMA \" || :catalog || \".\" || :raw_schema || \" SET TAGS ('data_classification' = 'confidential')\";\nEXECUTE IMMEDIATE \"ALTER SCHEMA \" || :catalog || \".\" || :bronze_schema || \" SET TAGS ('data_classification' = 'confidential')\";\nEXECUTE IMMEDIATE \"ALTER SCHEMA \" || :catalog || \".\" || :silver_schema || \" SET TAGS ('data_classification' = 'confidential')\";\nEXECUTE IMMEDIATE \"ALTER SCHEMA \" || :catalog || \".\" || :gold_schema || \" SET TAGS ('data_classification' = 'internal')\";\nEXECUTE IMMEDIATE \"ALTER SCHEMA \" || :catalog || \".\" || :eval_schema || \" SET TAGS ('data_classification' = 'restricted')\";\n\n-- Tables holding member PII\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" SET TAGS ('data_classification' = 'pii')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :gold_schema || \".claim_detail\" || \" SET TAGS ('data_classification' = 'pii')\";\n\n-- Column-level PII classification (silver source)\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN first_name      SET TAGS ('pii' = 'true', 'class.name' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN last_name       SET TAGS ('pii' = 'true', 'class.name' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN date_of_birth   SET TAGS ('pii' = 'true', 'class.date_of_birth' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN medicare_number SET TAGS ('pii' = 'true', 'class.au_medicare' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN address_line_1  SET TAGS ('pii' = 'true', 'class.street_address' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN email           SET TAGS ('pii' = 'email', 'class.email_address' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :silver_schema || \".member\" || \" ALTER COLUMN mobile_phone    SET TAGS ('pii' = 'true', 'class.phone_number' = '')\";\n\n-- Column-level PII classification (gold, masked columns)\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :gold_schema || \".claim_detail\" || \" ALTER COLUMN member_full_name SET TAGS ('pii' = 'true', 'class.name' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :gold_schema || \".claim_detail\" || \" ALTER COLUMN member_dob       SET TAGS ('pii' = 'true', 'class.date_of_birth' = '')\";\nEXECUTE IMMEDIATE \"ALTER TABLE \" || :catalog || \".\" || :gold_schema || \".claim_detail\" || \" ALTER COLUMN medicare_number  SET TAGS ('pii' = 'true', 'class.au_medicare' = '')\";\n",
+    "sql_statements": [
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiYzQtOWIwYS0yY2U0YzAyMGZkNzcQxp7nvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiY2ItODRhYy0xODU0YjE0M2U5YTAQ/6HnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiY2MtYjM3Yy1hMDFjZDZjOTBjN2MQ5aTnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiY2QtOGI3Zi03MjdjOTg3NTJlZmYQvafnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiY2UtYTY0Yi1lYzBhZTYxNDNmYzIQv6rnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiY2YtYmI2My04ZGEwOGE1ZjU3MGIQqK3nvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiY2YtYTA5Mi0zYTc1NzhjZDQwODgQs7DnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDAtYTcxMS1kYjY4ODk3YmI4NWQQtbPnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDEtODc4Zi03YzVlMmIxNTdiMjAQp7fnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDEtOTkwZC1lZjg3ZWE4YmQ4ZTQQ1rrnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDItOWNmZC1kYTI4ODdmYWE2MzUQmr7nvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDMtOGNiMC02ODFlYWVjZmYyOGIQzsHnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDMtYjA5YS0xYWNjY2QxY2YwZGUQ9MTnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDQtYWMxYS02Mzk2MWEwOGNlNWIQhcjnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDUtYjJiMC1kZTUxMmNhNzdiMjUQyMvnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDUtYjM1My03NDc3MWI1YTU1ZjIQ6c7nvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      },
+      {
+        "lookup_key": "CiQwMWYxZTRhZS1kZGIwLTFiZDYtODE5My0wOGQwMWJjNTZiY2MQjdLnvZ80GhAxNDhjY2I5MDgwMDkzM2ExIIzj6fvFp6IL"
+      }
+    ],
+    "warehouse_id": "148ccb90800933a1"
+  }
+}
+=======
+Task semantic:
+OK   mehdidatalake_catalog.integrity_gold.mv_claims_overview  (claim_count = 50220)
+OK   mehdidatalake_catalog.integrity_gold.mv_document_ai  (documents_processed = 396)
+OK   mehdidatalake_catalog.integrity_gold.mv_integrity_funnel  (cases = 876)
+OK   mehdidatalake_catalog.integrity_gold.mv_recovery  (findings = 538)
+OK   claims_forecast [['forecast', '75'], ['actual', '306']]
+

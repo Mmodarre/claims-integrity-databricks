@@ -1,0 +1,68 @@
+# Lakebase provisioning for the Claims Integrity Auditor: project, UC schemas, synced tables, indexes (scripts/provision_lakebase.py)
+# captured 2026-11-20 06:34 UTC
+
+=== attempt 1 — stopped: integrity_gold.claim_detail has UC column masks (synced tables cannot read row/column-secured tables) ===
+
+{
+ "app_name": "claims-integrity-auditor",
+ "app_schema": "auditor",
+ "app_sync_schema": "integrity_app",
+ "catalog": "mehdidatalake_catalog",
+ "draft_model": "databricks-claude-sonnet-5-5",
+ "genie_space_id": "01f1e4ab2b7a1f3492e03099f81db7d7",
+ "gold_schema": "integrity_gold",
+ "lakebase_branch": "production",
+ "lakebase_database_id": "databricks-postgres",
+ "lakebase_endpoint": "primary",
+ "lakebase_project": "claims-integrity",
+ "postgres_database": "databricks_postgres",
+ "scans_volume": "mehdidatalake_catalog.integrity_raw.landing",
+ "synced_schema": "integrity_synced"
+}
+Creating Lakebase project claims-integrity ...
+Created UC schema mehdidatalake_catalog.integrity_synced
+Created UC schema mehdidatalake_catalog.integrity_app
+created mehdidatalake_catalog.integrity_synced.flagged_claim_queue (CONTINUOUS, pk=['claim_id'], pipeline=5cfa81b7-99f2-4b2b-92a1-71482efd5839)
+created mehdidatalake_catalog.integrity_synced.claim_triage (CONTINUOUS, pk=['claim_id'], pipeline=5cfa81b7-99f2-4b2b-92a1-71482efd5839)
+created mehdidatalake_catalog.integrity_synced.claim_finding (SNAPSHOT, pk=['finding_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+FAILED: databricks postgres create-synced-table mehdidatalake_catalog.integrity_synced.claim_detail --no-wait --json {"spec": {"source_table_full_name": "mehdidatalake_catalog.integrity_gold.claim_detail", "primary_key_columns": ["claim_id"], "scheduling_policy": "SNAPSHOT", "branch": "projects/claims-integrity/branches/production", "postgres_database": "databricks_postgres", "create_database_objects_if_missing": true, "existing_pipeline_id": "92a35b74-021f-43a5-879b-f35a4d8d111c"}} -p field_east -o json
+Error: Table mehdidatalake_catalog.integrity_gold.claim_detail cannot have both row/column security and online materialized views.
+
+[exited with code 0]
+
+=== attempt 2 — after adding masked-source handling (sync via plain view + app-side PII policy) ===
+{
+ "app_name": "claims-integrity-auditor",
+ "app_schema": "auditor",
+ "app_sync_schema": "integrity_app",
+ "catalog": "mehdidatalake_catalog",
+ "draft_model": "databricks-claude-sonnet-5-5",
+ "genie_space_id": "01f1e4ab2b7a1f3492e03099f81db7d7",
+ "gold_schema": "integrity_gold",
+ "lakebase_branch": "production",
+ "lakebase_database_id": "databricks-postgres",
+ "lakebase_endpoint": "primary",
+ "lakebase_project": "claims-integrity",
+ "pii_groups": "admins,claims_integrity_auditors",
+ "postgres_database": "databricks_postgres",
+ "scans_volume": "mehdidatalake_catalog.integrity_raw.landing",
+ "synced_schema": "integrity_synced",
+ "warehouse_id": "148ccb90800933a1"
+}
+exists  mehdidatalake_catalog.integrity_synced.flagged_claim_queue (CONTINUOUS)
+exists  mehdidatalake_catalog.integrity_synced.claim_triage (CONTINUOUS)
+exists  mehdidatalake_catalog.integrity_synced.claim_finding (SNAPSHOT)
+NOTE    mehdidatalake_catalog.integrity_gold.claim_detail has column masks ['member_full_name', 'member_dob', 'medicare_number'] / row filter False: syncing via view mehdidatalake_catalog.integrity_synced.claim_detail_sync_source; UC masks do not apply in Postgres, the app enforces PII access
+created mehdidatalake_catalog.integrity_synced.claim_detail (SNAPSHOT, pk=['claim_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.claim_line_detail (SNAPSHOT, pk=['claim_line_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.admission_coding (SNAPSHOT, pk=['coding_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.claim_document_review (SNAPSHOT, pk=['claim_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.document_element (SNAPSHOT, pk=['element_key'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.document_ai_fact (SNAPSHOT, pk=['document_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.hospital_risk_profile (SNAPSHOT, pk=['hospital_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+created mehdidatalake_catalog.integrity_synced.provider_risk_profile (SNAPSHOT, pk=['provider_id'], pipeline=92a35b74-021f-43a5-879b-f35a4d8d111c)
+waiting: {'claim_detail': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'claim_line_detail': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'admission_coding': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'claim_document_review': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'document_element': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'document_ai_fact': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'hospital_risk_profile': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES', 'provider_risk_profile': 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES'}
+waiting: {'hospital_risk_profile': 'SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT', 'provider_risk_profile': 'SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT'}
+waiting: none
+Pipelines: {"CONTINUOUS": "5cfa81b7-99f2-4b2b-92a1-71482efd5839", "SNAPSHOT": "92a35b74-021f-43a5-879b-f35a4d8d111c"}
+Done. Next: databricks bundle deploy && databricks bundle run auditor_app, then scripts/post_deploy.py

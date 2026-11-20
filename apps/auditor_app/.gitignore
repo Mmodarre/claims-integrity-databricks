@@ -1,0 +1,42 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# version file
+src/auditor_app/_version.py
+
+# metadata file
+src/auditor_app/_metadata.py
+
+# build files
+dist
+
+# js-related
+node_modules/
+.tanstack
+
+# env files
+.env
+.env.local
+.env.*
+
+# mac
+.DS_Store
+
+# DABs 
+.databricks
+
+# apx
+.apx/
+
+# UI dist folder
+src/auditor_app/__dist__/
+# rendered by scripts/build_app.py from the bundle variables
+app.yml

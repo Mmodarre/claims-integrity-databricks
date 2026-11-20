@@ -1,0 +1,30 @@
+# Insights app (AppKit): databricks apps deploy -- validate (typegen, lint, typecheck, build) + platform build + start
+# captured 2026-11-20 06:32 UTC
+
+Validating project using npm...
+⏭️  Skipped Installing dependencies
+✅ Generating types (4.4s)
+✅ Running AST-grep lint (0.7s)
+✅ Type checking (6.7s)
+✅ Building (9.0s)
+⏭️  Skipped Running tests
+✅ All validation checks passed (20.7s)
+Deploying project...
+Uploading bundle files to /Workspace/Users/<operator>/.bundle/claims-integrity-insights/default/files...
+Files: 5 uploaded, 0 deleted
+Resources: 0 created, 0 changed, 0 deleted, 1 unchanged
+✓ Getting the status of the app claims-integrity-insights
+✓ App is in UNAVAILABLE state
+✓ App compute is in ACTIVE state
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Downloading source code from /Workspace/Users/65fd2f61-3730-48c5-8f5a-f77da8794683/src/01f1e4ac1438156fb40da6658c46e271
+✓ Installing packages...
+✓ Installing packages...
+✓ Building app...
+✓ App started successfully
+You can access the app at https://claims-integrity-insights-<workspace-id>.11.azure.databricksapps.com
+✔ Deployment complete!

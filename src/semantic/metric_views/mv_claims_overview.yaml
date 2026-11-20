@@ -1,0 +1,147 @@
+version: 1.1
+source: ${catalog}.${gold_schema}.claims_fact
+comment: "Executive claims overview: volume, charges, benefits, member gap, rejections and payment speed across all claim types. De-identified."
+dimensions:
+  - name: service_month
+    expr: service_month
+    display_name: Service month
+    comment: "Month the service was provided"
+    synonyms: ["month", "period"]
+  - name: service_week
+    expr: service_week
+    display_name: Service week
+  - name: service_year
+    expr: YEAR(service_date)
+    display_name: Service year
+    synonyms: ["year"]
+  - name: claim_type
+    expr: claim_type
+    display_name: Claim type
+    comment: "Hospital, Extras, Ambulance, ..."
+    synonyms: ["type of claim", "line of business"]
+  - name: claim_status
+    expr: claim_status
+    display_name: Claim status
+  - name: claim_channel
+    expr: claim_channel
+    display_name: Lodgement channel
+    synonyms: ["channel"]
+  - name: member_state
+    expr: member_state
+    display_name: Member state
+    synonyms: ["state", "region"]
+  - name: member_age_band
+    expr: member_age_band
+    display_name: Member age band
+    synonyms: ["age group"]
+  - name: member_gender
+    expr: member_gender
+    display_name: Member gender
+  - name: product_name
+    expr: product_name
+    display_name: Product
+    synonyms: ["policy product", "cover"]
+  - name: policy_type
+    expr: policy_type
+    display_name: Policy type
+  - name: hospital_name
+    expr: hospital_name
+    display_name: Hospital
+  - name: hospital_state
+    expr: hospital_state
+    display_name: Hospital state
+  - name: accommodation_type
+    expr: accommodation_type
+    display_name: Accommodation type
+  - name: is_hospital_episode
+    expr: is_hospital_episode
+    display_name: Hospital episode
+  - name: provider_category
+    expr: provider_category
+    display_name: Provider category
+  - name: ml_flagged
+    expr: ml_flagged
+    display_name: Flagged by fraud model
+measures:
+  - name: claim_count
+    expr: COUNT(1)
+    display_name: Claims
+    synonyms: ["number of claims", "claim volume"]
+    format:
+      type: number
+      decimal_places: {type: exact, places: 0}
+  - name: total_charged
+    expr: SUM(total_charge)
+    display_name: Total charged
+    comment: "Amount charged by providers (AUD)"
+    synonyms: ["charges", "billed amount"]
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: benefit_paid
+    expr: SUM(total_benefit)
+    display_name: Benefit paid
+    comment: "Benefit paid by the fund (AUD)"
+    synonyms: ["benefits", "claims paid", "payout"]
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: member_gap
+    expr: SUM(total_gap)
+    display_name: Member gap
+    comment: "Out-of-pocket gap paid by members (AUD)"
+    synonyms: ["out of pocket", "gap"]
+    format:
+      type: currency
+      currency_code: AUD
+      abbreviation: compact
+  - name: avg_benefit_per_claim
+    expr: CAST(MEASURE(benefit_paid) AS DOUBLE) / MEASURE(claim_count)
+    display_name: Avg benefit per claim
+    format:
+      type: currency
+      currency_code: AUD
+      decimal_places: {type: exact, places: 2}
+  - name: benefit_to_charge_ratio
+    expr: CAST(MEASURE(benefit_paid) AS DOUBLE) / MEASURE(total_charged)
+    display_name: Benefit / charge
+    comment: "Share of charges paid by the fund"
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: rejected_claims
+    expr: COUNT(1) FILTER (WHERE is_rejected)
+    display_name: Rejected claims
+  - name: rejection_rate
+    expr: MEASURE(rejected_claims) / MEASURE(claim_count)
+    display_name: Rejection rate
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}
+  - name: avg_days_to_payment
+    expr: AVG(days_lodgement_to_payment)
+    display_name: Avg days lodgement to payment
+    synonyms: ["payment speed", "turnaround"]
+    format:
+      type: number
+      decimal_places: {type: exact, places: 1}
+  - name: hospital_episodes
+    expr: COUNT(1) FILTER (WHERE is_hospital_episode)
+    display_name: Hospital episodes
+  - name: avg_length_of_stay
+    expr: AVG(length_of_stay_days) FILTER (WHERE is_hospital_episode)
+    display_name: Avg length of stay (nights)
+    format:
+      type: number
+      decimal_places: {type: exact, places: 2}
+  - name: flagged_claims
+    expr: COUNT(1) FILTER (WHERE ml_flagged)
+    display_name: Fraud-model flags
+  - name: flag_rate
+    expr: MEASURE(flagged_claims) / MEASURE(hospital_episodes)
+    display_name: Flag rate (hospital episodes)
+    format:
+      type: percentage
+      decimal_places: {type: exact, places: 1}

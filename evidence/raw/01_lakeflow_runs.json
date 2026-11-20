@@ -1,0 +1,951 @@
+{
+ "job_runs": [
+  {
+   "cleanup_duration": 0,
+   "creator_user_name": "<operator>",
+   "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+   "end_time": 1795157575331,
+   "execution_duration": 0,
+   "job_id": 518972156758222,
+   "job_run_id": 739198944604163,
+   "number_in_job": 739198944604163,
+   "original_attempt_run_id": 739198944604163,
+   "run_duration": 541580,
+   "run_id": 739198944604163,
+   "run_name": "[dev mehdi_modarressi] claims_integrity_etl",
+   "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/739198944604163",
+   "run_type": "JOB_RUN",
+   "setup_duration": 0,
+   "start_time": 1795157033751,
+   "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "SUCCESS",
+    "state_message": "",
+    "user_cancelled_or_timedout": false
+   },
+   "status": {
+    "state": "TERMINATED",
+    "termination_details": {
+     "code": "SUCCESS",
+     "message": "",
+     "type": "SUCCESS"
+    }
+   },
+   "tasks": [
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795157557548,
+     "environment_key": "semantic_env",
+     "execution_duration": 40000,
+     "run_id": 147532169078746,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/147532169078746",
+     "setup_duration": 6000,
+     "spark_python_task": {
+      "parameters": [
+       "--catalog",
+       "mehdidatalake_catalog",
+       "--gold-schema",
+       "integrity_gold",
+       "--warehouse-id",
+       "148ccb90800933a1",
+       "--root",
+       "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic"
+      ],
+      "python_file": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic/deploy_semantic.py"
+     },
+     "start_time": 1795157511024,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "semantic"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795157521663,
+     "execution_duration": 11000,
+     "run_id": 457788489712591,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/457788489712591",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/governance.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "silver_schema": "integrity_silver",
+       "gold_schema": "integrity_gold",
+       "bronze_schema": "integrity_bronze",
+       "eval_schema": "integrity_eval",
+       "raw_schema": "integrity_raw"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795157510497,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "governance"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ingest"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795157510165,
+     "execution_duration": 256000,
+     "pipeline_task": {
+      "pipeline_id": "f3ff5b97-1512-4443-b68f-83cceda965d6"
+     },
+     "run_id": 804076865724525,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/804076865724525",
+     "setup_duration": 0,
+     "start_time": 1795157253691,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "ai"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795157037757,
+     "execution_duration": 3000,
+     "run_id": 540534118709503,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/540534118709503",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/setup.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "gold_schema": "integrity_gold"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795157033812,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "setup"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "setup"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795157253419,
+     "execution_duration": 215000,
+     "pipeline_task": {
+      "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347"
+     },
+     "run_id": 170115453406365,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/170115453406365",
+     "setup_duration": 0,
+     "start_time": 1795157038008,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "ingest"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795157575046,
+     "execution_duration": 64000,
+     "pipeline_task": {
+      "pipeline_id": "92a35b74-021f-43a5-879b-f35a4d8d111c"
+     },
+     "run_id": 511871392846611,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/511871392846611",
+     "setup_duration": 0,
+     "start_time": 1795157510605,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "refresh_lakebase"
+    }
+   ],
+   "trigger": "ONE_TIME"
+  },
+  {
+   "cleanup_duration": 0,
+   "creator_user_name": "<operator>",
+   "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+   "end_time": 1795155884153,
+   "execution_duration": 0,
+   "job_id": 518972156758222,
+   "job_run_id": 677162942767480,
+   "number_in_job": 677162942767480,
+   "original_attempt_run_id": 677162942767480,
+   "run_duration": 2346837,
+   "run_id": 677162942767480,
+   "run_name": "[dev mehdi_modarressi] claims_integrity_etl",
+   "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/677162942767480",
+   "run_type": "JOB_RUN",
+   "setup_duration": 0,
+   "start_time": 1795153313343,
+   "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "SUCCESS",
+    "state_message": "",
+    "user_cancelled_or_timedout": false
+   },
+   "status": {
+    "state": "TERMINATED",
+    "termination_details": {
+     "code": "SUCCESS",
+     "message": "",
+     "type": "SUCCESS"
+    }
+   },
+   "tasks": [
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795155607013,
+     "environment_key": "semantic_env",
+     "execution_duration": 39000,
+     "run_id": 880480456113754,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/880480456113754",
+     "setup_duration": 4000,
+     "spark_python_task": {
+      "parameters": [
+       "--catalog",
+       "mehdidatalake_catalog",
+       "--gold-schema",
+       "integrity_gold",
+       "--warehouse-id",
+       "148ccb90800933a1",
+       "--root",
+       "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic"
+      ],
+      "python_file": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic/deploy_semantic.py"
+     },
+     "start_time": 1795155563459,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "semantic"
+    },
+    {
+     "attempt_number": 1,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795155806974,
+     "environment_key": "semantic_env",
+     "execution_duration": 38000,
+     "run_id": 80734594433000,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/80734594433000",
+     "setup_duration": 4000,
+     "spark_python_task": {
+      "parameters": [
+       "--catalog",
+       "mehdidatalake_catalog",
+       "--gold-schema",
+       "integrity_gold",
+       "--warehouse-id",
+       "148ccb90800933a1",
+       "--root",
+       "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic"
+      ],
+      "python_file": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic/deploy_semantic.py"
+     },
+     "start_time": 1795155764674,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "semantic"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795155565368,
+     "execution_duration": 1000,
+     "run_id": 748334084280913,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/748334084280913",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/governance.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "silver_schema": "integrity_silver",
+       "gold_schema": "integrity_gold",
+       "bronze_schema": "integrity_bronze",
+       "eval_schema": "integrity_eval",
+       "raw_schema": "integrity_raw"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795155563341,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "FAILED",
+      "state_message": "Workload failed, see run output for details",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "RUN_EXECUTION_ERROR",
+       "message": "Workload failed, see run output for details",
+       "type": "CLIENT_ERROR"
+      }
+     },
+     "task_key": "governance"
+    },
+    {
+     "attempt_number": 1,
+     "cleanup_duration": 1000,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795155766657,
+     "execution_duration": 1000,
+     "run_id": 564849147675574,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/564849147675574",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/governance.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "silver_schema": "integrity_silver",
+       "gold_schema": "integrity_gold",
+       "bronze_schema": "integrity_bronze",
+       "eval_schema": "integrity_eval",
+       "raw_schema": "integrity_raw"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795155764568,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "FAILED",
+      "state_message": "Workload failed, see run output for details",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "RUN_EXECUTION_ERROR",
+       "message": "Workload failed, see run output for details",
+       "type": "CLIENT_ERROR"
+      }
+     },
+     "task_key": "governance"
+    },
+    {
+     "attempt_number": 2,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795155883822,
+     "execution_duration": 8000,
+     "run_id": 568701265832749,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/568701265832749",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/governance.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "silver_schema": "integrity_silver",
+       "gold_schema": "integrity_gold",
+       "bronze_schema": "integrity_bronze",
+       "eval_schema": "integrity_eval",
+       "raw_schema": "integrity_raw"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795155875169,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "governance"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ingest"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795155562822,
+     "execution_duration": 2070000,
+     "pipeline_task": {
+      "pipeline_id": "f3ff5b97-1512-4443-b68f-83cceda965d6"
+     },
+     "run_id": 535003802713136,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/535003802713136",
+     "setup_duration": 0,
+     "start_time": 1795153492486,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "ai"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795153317192,
+     "execution_duration": 3000,
+     "run_id": 95854620980512,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/95854620980512",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/setup.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "gold_schema": "integrity_gold"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795153313397,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "setup"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "setup"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795153492196,
+     "execution_duration": 174000,
+     "pipeline_task": {
+      "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347"
+     },
+     "run_id": 780074671504208,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/780074671504208",
+     "setup_duration": 0,
+     "start_time": 1795153317472,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "ingest"
+    }
+   ],
+   "trigger": "ONE_TIME"
+  },
+  {
+   "cleanup_duration": 0,
+   "creator_user_name": "<operator>",
+   "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+   "end_time": 1795152985059,
+   "execution_duration": 0,
+   "job_id": 518972156758222,
+   "job_run_id": 259587980588871,
+   "number_in_job": 259587980588871,
+   "original_attempt_run_id": 259587980588871,
+   "run_duration": 130280,
+   "run_id": 259587980588871,
+   "run_name": "[dev mehdi_modarressi] claims_integrity_etl",
+   "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/259587980588871",
+   "run_type": "JOB_RUN",
+   "setup_duration": 0,
+   "start_time": 1795152854779,
+   "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "CANCELED",
+    "state_message": "Run cancelled by user",
+    "user_cancelled_or_timedout": true
+   },
+   "status": {
+    "state": "TERMINATED",
+    "termination_details": {
+     "code": "USER_CANCELED",
+     "message": "Run cancelled by user",
+     "type": "SUCCESS"
+    }
+   },
+   "tasks": [
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795152979209,
+     "environment_key": "semantic_env",
+     "execution_duration": 0,
+     "run_id": 523198646792780,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/523198646792780",
+     "setup_duration": 0,
+     "spark_python_task": {
+      "parameters": [
+       "--catalog",
+       "mehdidatalake_catalog",
+       "--gold-schema",
+       "integrity_gold",
+       "--warehouse-id",
+       "148ccb90800933a1",
+       "--root",
+       "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic"
+      ],
+      "python_file": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/semantic/deploy_semantic.py"
+     },
+     "start_time": 0,
+     "state": {
+      "life_cycle_state": "SKIPPED",
+      "result_state": "UPSTREAM_CANCELED",
+      "state_message": "Skipped because upstream task was cancelled or timed out",
+      "user_cancelled_or_timedout": true
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SKIPPED",
+       "message": "Skipped because upstream task was cancelled or timed out",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "semantic"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ai"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795152979209,
+     "execution_duration": 0,
+     "run_id": 103805560280139,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/103805560280139",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/governance.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "silver_schema": "integrity_silver",
+       "gold_schema": "integrity_gold",
+       "bronze_schema": "integrity_bronze",
+       "eval_schema": "integrity_eval",
+       "raw_schema": "integrity_raw"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 0,
+     "state": {
+      "life_cycle_state": "SKIPPED",
+      "result_state": "UPSTREAM_CANCELED",
+      "state_message": "Skipped because upstream task was cancelled or timed out",
+      "user_cancelled_or_timedout": true
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SKIPPED",
+       "message": "Skipped because upstream task was cancelled or timed out",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "governance"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "ingest"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795152979209,
+     "execution_duration": 0,
+     "pipeline_task": {
+      "pipeline_id": "f3ff5b97-1512-4443-b68f-83cceda965d6"
+     },
+     "run_id": 495258625574865,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/495258625574865",
+     "setup_duration": 0,
+     "start_time": 0,
+     "state": {
+      "life_cycle_state": "SKIPPED",
+      "result_state": "UPSTREAM_CANCELED",
+      "state_message": "Skipped because upstream task was cancelled or timed out",
+      "user_cancelled_or_timedout": true
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SKIPPED",
+       "message": "Skipped because upstream task was cancelled or timed out",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "ai"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795152859145,
+     "execution_duration": 4000,
+     "run_id": 1072406426155095,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/1072406426155095",
+     "setup_duration": 0,
+     "sql_task": {
+      "file": {
+       "path": "/Workspace/Users/<operator>/.bundle/claims_integrity/dev/files/src/setup/setup.sql",
+       "source": "WORKSPACE"
+      },
+      "parameters": {
+       "catalog": "mehdidatalake_catalog",
+       "gold_schema": "integrity_gold"
+      },
+      "warehouse_id": "148ccb90800933a1"
+     },
+     "start_time": 1795152854825,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS",
+      "state_message": "",
+      "user_cancelled_or_timedout": false
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "SUCCESS",
+       "message": "",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "setup"
+    },
+    {
+     "attempt_number": 0,
+     "cleanup_duration": 0,
+     "depends_on": [
+      {
+       "task_key": "setup"
+      }
+     ],
+     "effective_performance_target": "PERFORMANCE_OPTIMIZED",
+     "end_time": 1795152984606,
+     "execution_duration": 124000,
+     "pipeline_task": {
+      "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347"
+     },
+     "run_id": 975507991548215,
+     "run_if": "ALL_SUCCESS",
+     "run_page_url": "https://<workspace-host>/?o=<workspace-id>#job/518972156758222/run/975507991548215",
+     "setup_duration": 0,
+     "start_time": 1795152859870,
+     "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "CANCELED",
+      "state_message": "Run cancelled by user",
+      "user_cancelled_or_timedout": true
+     },
+     "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+       "code": "USER_CANCELED",
+       "message": "Run cancelled by user",
+       "type": "SUCCESS"
+      }
+     },
+     "task_key": "ingest"
+    }
+   ],
+   "trigger": "ONE_TIME"
+  }
+ ],
+ "claims_integrity_ingest": {
+  "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347",
+  "updates": [
+   {
+    "cause": "JOB_TASK",
+    "creation_time": 1795157041339,
+    "full_refresh": false,
+    "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347",
+    "state": "COMPLETED",
+    "update_id": "4ff5e11f-740f-456b-b7c3-872b4af2c54b",
+    "validate_only": false
+   },
+   {
+    "cause": "JOB_TASK",
+    "creation_time": 1795153320461,
+    "full_refresh": false,
+    "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347",
+    "state": "COMPLETED",
+    "update_id": "2432b424-cad4-462e-a6b7-b24fb70844ca",
+    "validate_only": false
+   },
+   {
+    "cause": "API_CALL",
+    "creation_time": 1795153016290,
+    "full_refresh": true,
+    "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347",
+    "state": "COMPLETED",
+    "update_id": "4344dea8-4fb1-441b-bb64-52d6196b9933",
+    "validate_only": false
+   },
+   {
+    "cause": "JOB_TASK",
+    "creation_time": 1795152862926,
+    "full_refresh": false,
+    "pipeline_id": "27e9e917-5a5f-4c9e-a3e1-f35abe445347",
+    "state": "CANCELED",
+    "update_id": "452d9a3d-6536-468a-a71f-a991dca063dd",
+    "validate_only": false
+   }
+  ]
+ },
+ "claims_integrity_ai": {
+  "pipeline_id": "f3ff5b97-1512-4443-b68f-83cceda965d6",
+  "updates": [
+   {
+    "cause": "JOB_TASK",
+    "creation_time": 1795157257662,
+    "full_refresh": false,
+    "pipeline_id": "f3ff5b97-1512-4443-b68f-83cceda965d6",
+    "state": "COMPLETED",
+    "update_id": "2e96ea40-cd42-4c8f-a449-1fc9559e8065",
+    "validate_only": false
+   },
+   {
+    "cause": "JOB_TASK",
+    "creation_time": 1795153495594,
+    "full_refresh": false,
+    "pipeline_id": "f3ff5b97-1512-4443-b68f-83cceda965d6",
+    "state": "COMPLETED",
+    "update_id": "e19836d1-9197-4f9e-badb-a577d1f5ae0d",
+    "validate_only": false
+   }
+  ]
+ }
+}

@@ -1,0 +1,44 @@
+# Claims Integrity demo (claims_integrity) — Lakeflow pipelines, job, and metric views.
+# Design: docs/design.md
+bundle:
+  name: claims_integrity
+  engine: direct
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for every claims_integrity schema
+    default: mehdidatalake_catalog
+  raw_schema:
+    default: integrity_raw
+  bronze_schema:
+    default: integrity_bronze
+  silver_schema:
+    default: integrity_silver
+  gold_schema:
+    default: integrity_gold
+  eval_schema:
+    default: integrity_eval
+  raw_volume_path:
+    description: Landing volume holding exports/ (parquet) and rendered_docs/ (JPG scans)
+    default: /Volumes/mehdidatalake_catalog/integrity_raw/landing
+  llm_endpoint:
+    description: Model for structured ai_query steps (must support strict json_schema responseFormat)
+    default: system.ai.gpt-5-5
+  narrative_endpoint:
+    description: Model for free-text narratives
+    default: system.ai.claude-sonnet-5-5
+  lakebase_snapshot_pipeline_id:
+    description: Managed pipeline of the Lakebase SNAPSHOT synced tables (printed by apps/auditor_app/scripts/provision_lakebase.py)
+    default: 92a35b74-021f-43a5-879b-f35a4d8d111c
+  warehouse_id:
+    description: Serverless SQL warehouse for metric views and ai_forecast
+    default: 148ccb90800933a1
+
+targets:
+  dev:
+    default: true
+    mode: development
+    # workspace host comes from the CLI profile (databricks ... -p <profile>)
